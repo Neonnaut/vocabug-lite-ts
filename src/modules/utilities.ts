@@ -1,6 +1,7 @@
 
 // This thing fetches the last item of an array
-const last = <T>(arr: T[]): T | undefined => arr?.[arr.length - 1];
+const last = <T = never>(arr: ArrayLike<T> | null | undefined) =>
+    arr?.[arr.length - 1];
 
 
 function validateCatSegName(str: string): [boolean, boolean] {
@@ -104,7 +105,7 @@ function extract_Value_and_Weight(
     if (allDefaultWeights) {
         my_values = input_list;
 
-        if (default_distribution === "guseinzade") {
+        if (default_distribution === "gusein-zade") {
             my_weights = guseinzade_distribution(input_list.length);
         } else if (default_distribution === "zipfian") {
             my_weights = zipfian_distribution(input_list.length);
@@ -125,7 +126,7 @@ function extract_Value_and_Weight(
     return [my_values, my_weights];
 }
 
-function weightedRandomPick(items:string[], weights:number[]): string | undefined {
+function weightedRandomPick(items:string[], weights:number[]): string {
     const totalWeight = weights.reduce((acc, w) => acc + w, 0);
     let randomValue = Math.random() * totalWeight;
 
@@ -136,7 +137,7 @@ function weightedRandomPick(items:string[], weights:number[]): string | undefine
         randomValue -= weights[i];
     }
 
-    return undefined; // In case of empty input or mismatch
+    return '';
 }
 
 function guseinzade_distribution(no_of_items: number): number[] {
@@ -197,7 +198,7 @@ function resolve_nested_categories(
   }
 
   function get_distribution(n: number): number[] {
-    if (default_distribution === "guseinzade") return guseinzade_distribution(n);
+    if (default_distribution === "gusein-zade") return guseinzade_distribution(n);
     if (default_distribution === "zipfian") return zipfian_distribution(n);
     return flat_distribution(n);
   }
@@ -304,7 +305,75 @@ function resolve_nested_categories(
   return [keys, weights];
 }
 
+function resolve_wordshape_sets(
+    input_list: string,
+    distribution: string,
+    optionals_weight: number // percentage chance to include optionals (0–100)
+): string {
+    const squarePattern = /\[[^\[\]]*\]/g;
+    const roundPattern = /\([^\(\)]*\)/g;
+    let matches: RegExpMatchArray | null;
+
+    let items: string[] = [];
+    let outputs: [string[], number[]];
+
+    if (!valid_words_brackets(input_list)) {
+        throw new Error('bad thing');
+    }
+
+    // Resolve optional sets in round brackets based on weight
+    while ((matches = input_list.match(roundPattern)) !== null) {
+        const group = matches[matches.length - 1];
+        const candidates = group.slice(1, -1).split(/[,\s]+/).filter(Boolean);
+
+        // Decide whether to keep or drop entire group based on random chance
+        const include = Math.random() * 100 < optionals_weight;
+
+        if (include && candidates.length > 0) {
+            outputs = extract_Value_and_Weight(candidates, distribution);
+            const selected = weightedRandomPick(outputs[0], outputs[1]);
+            input_list = input_list.replace(group, selected);
+        } else {
+            input_list = input_list.replace(group, '');
+        }
+    }
+
+    // Resolve nested sets in square brackets
+    while ((matches = input_list.match(squarePattern)) !== null) {
+        const mostNested = matches[matches.length - 1];
+        items = mostNested.slice(1, -1).split(/[,\s]+/).filter(Boolean);
+
+        if (items.length === 0) {
+            items = ['^'];
+        } else {
+            outputs = extract_Value_and_Weight(items, distribution);
+            const picked = weightedRandomPick(outputs[0], outputs[1]);
+            items = [picked];
+        }
+
+        input_list = input_list.replace(mostNested, items[0]);
+    }
+
+    items = input_list.split(/[,\s]+/).filter(Boolean);
+    outputs = extract_Value_and_Weight(items, distribution);
+    const finalPick = weightedRandomPick(outputs[0], outputs[1]);
+    return finalPick;
+}
+
+function capitalize(str: string): string {
+    return str[0].toUpperCase() + str.slice(1);
+}
+function randomEndPunctuation(): string {
+    const roll = Math.random();
+    if (roll < 0.005) return '...';     // 0.4% chance of exclamation
+    if (roll < 0.03) return '!';     // 2% chance of exclamation
+    if (roll < 0.08) return '?';     // 5% chance of question
+    return '.';                      // 93% chance of full stop
+}
+
+
+
 
 export { last, makePercentage, getCatSeg, GetTransform,
   valid_category_brackets, valid_words_brackets, extract_Value_and_Weight, weightedRandomPick,
-  resolve_nested_categories };
+  resolve_nested_categories, resolve_wordshape_sets, capitalize, randomEndPunctuation };

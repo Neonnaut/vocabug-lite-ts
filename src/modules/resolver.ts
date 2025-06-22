@@ -1,7 +1,7 @@
 // import { Fragment } from './rule.js';
 // import Word from './word.js';
 // import { SoundSystem, createText, invalidItemAndWeight } from './wordgen.js';\
-import Logger from '../logger';
+import Logger from './logger';
 
 import { getCatSeg, GetTransform, makePercentage, extract_Value_and_Weight, resolve_nested_categories,
     valid_words_brackets, valid_category_brackets
@@ -32,7 +32,7 @@ class Resolver {
     public wordshapes: [ string[], number[] ];
     private wordshape_string: string;
     public graphemes: string[];
-    public transforms: Map<string, string>;
+    public transforms: [ string[], string[]];
 
     private file_line_num = 0;
 
@@ -60,8 +60,8 @@ class Resolver {
             this.logger.warn('Number of words was rounded to the nearest whole number');
             num_of_words = Math.ceil(num_of_words);
         }
-        if ((num_of_words >= 1_000_000) || (num_of_words <= 1)) {
-            this.logger.warn('Number of words was not between 1 and 1 000 000. Genearating 100 words instead');
+        if ((num_of_words > 1_000_000) || (num_of_words < 1)) {
+            this.logger.warn('Number of words was not between 1 and 1,000,000. Genearating 100 words instead');
             num_of_words = 100;
         }
         this.num_of_words = num_of_words;
@@ -73,6 +73,7 @@ class Resolver {
         this.remove_duplicates = remove_duplicates;
         this.force_word_limit = force_word_limit;
         this.word_divider = word_divider === "" ? ' ' : word_divider;
+        this.word_divider = this.word_divider.replace(new RegExp('\\\\n', 'g'), '\n');
 
         if (this.paragrapha) {
             this.sort_words = false;
@@ -96,7 +97,7 @@ class Resolver {
         this.wordshape_string = ""
         this.wordshapes = [ [], [] ];
         this.graphemes = [];
-        this.transforms = new Map;
+        this.transforms = [ [], [] ];
     }
 
     
@@ -165,6 +166,7 @@ class Resolver {
                     this.logger.warn(`Invalid optionals-weight, (it should be a number between 1 and 100) at line ${this.file_line_num + 1}`);
                     continue;
                 }
+                this.optionals_weight = optionals_weight;
 
             } else if (line.startsWith("alphabet:")) {
                 line_value = line.substring(9).trim();
@@ -226,8 +228,12 @@ class Resolver {
         let buffer = "";
         let insideBrackets = 0;
 
+        if (this.wordshape_string.length == 0){
+            throw new Error("No word-shapes to choose from");
+        }
+
         if (!valid_words_brackets(this.wordshape_string)) {
-            throw new Error("words had missmatched brackets");
+            throw new Error("A word-shape had missmatched brackets");
         }
 
         for (let i = 0; i < this.wordshape_string.length; i++) {
@@ -261,7 +267,8 @@ class Resolver {
     }
 
     add_transform(target:string, after:string) {
-        this.transforms.set(target, after);
+        this.transforms[0].push(target);
+        this.transforms[1].push(after); ////
     }
 
     expand_categories() {
@@ -361,8 +368,8 @@ class Resolver {
         }
 
         let transforms = [];
-        for (const [key, value] of this.transforms) {
-            transforms.push(`  ${key} → ${value}`);
+        for (let i = 0; i < this.transforms[0].length; i++) {
+            transforms.push(`${this.transforms[0][i]} → ${this.transforms[1][i]}`);
         }
 
         this.logger.silent_info(

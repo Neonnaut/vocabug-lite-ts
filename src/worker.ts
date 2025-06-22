@@ -1,11 +1,7 @@
 import gen_words from './modules/core';
-import Logger from './logger';
 
 onmessage = function (event) {
-    let my_logger = new Logger();
-
-    const my_words = gen_words(
-        my_logger,
+    const vocabug = gen_words(
         event.data.file,
         event.data.num_of_words,
         event.data.mode,
@@ -17,12 +13,12 @@ onmessage = function (event) {
     );
 
     postMessage({
-        words: my_words,
+        words: vocabug.text,
         file: event.data.file,
         
-        error_message: my_logger.errors.join("<br>"),
-        warning_message: my_logger.warnings.join("<br>"),
-        info_message: my_logger.infos.join("<br>")
+        error_message: vocabug.errors.join("<br>"),
+        warning_message: vocabug.warnings.join("<br>"),
+        info_message: vocabug.infos.join("<br>")
     });
 }
 

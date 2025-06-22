@@ -1,10 +1,28 @@
+// import { Fragment } from './rule.js';
+import Word from './word.js';
+// import { SoundSystem, createText, invalidItemAndWeight } from './wordgen.js';\
+import Logger from './logger';
+
 class Transformer {
-    constructor( logger,
-    num_of_words, debug, paragrapha, remove_duplicates, force_word_limit,
-    sort_words, capitalise_words, word_divider ) {
+    public logger: Logger;
+   
+    public graphemes: string[];
+    public transforms: [ string[], string[] ]
+
+    constructor(
+        logger: Logger,
+        graphemes: string[],
+        transforms: [ string[], string[] ]
+    ) {
         this.logger = logger;
-
-        this.graphemes = this.graphemes;
-
+        this.graphemes = graphemes;
+        this.transforms = transforms;
     }
+
+    do_transforms(word:Word):Word {
+        return word;
+    }
+
 }
+
+export default Transformer;

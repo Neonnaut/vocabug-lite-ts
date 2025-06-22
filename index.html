@@ -55,7 +55,7 @@
 
         </div>
   
-        <textarea data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false" rows="6" id='voc-output-words-field' spellcheck='false' placeholder="Generated words will be shown here..."></textarea><br>
+        <textarea spellcheck="false" data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false" rows="6" id='voc-output-words-field' spellcheck='false' placeholder="Generated words will be shown here..."></textarea><br>
       
         <div id='voc-output-message' style="border: 2px solid #000;"></div>
     
@@ -97,7 +97,7 @@
   
           <div style="clear: left; padding: 5px 0;">
             <label for="word-divider">Word divider (" " is default. "\n" makes newlines):</label><br>
-            <input type="text" autocomplete="off" id="word-divider">
+            <input type="text" autocomplete="off" spellcheck="false" id="word-divider">
           </div>
         
         </fieldset>
@@ -106,7 +106,7 @@
           <legend>File save / load</legend>
   
           <label for="file-name">File name:</label><br>
-          <input type="text" autocomplete="off" id="file-name" placeholder="vocabug"><br>
+          <input type="text" spellcheck="false" autocomplete="off" id="file-name" placeholder="vocabug"><br>
           <input type="submit" id="load-file" value="Load file">
           <input type="submit" id="save-file" value="Save file">
           <br>
@@ -122,7 +122,7 @@
         <label for="category-distribution">Default distribution:</label>
           <select id="category-distribution" aria-label="Default distribution type for category items">
             <option value="flat">Flat</option>
-            <option value="gusein-zade">Gusein-zade</option>
+            <option value="gusein-zade" selected>Gusein-zade</option>
             <option value="zipfian">Zipfian</option>
           </select>
           <br><br>
@@ -142,7 +142,7 @@
                 <option value="V">V</option><option value="W">W</option><option value="X">X</option>
                 <option value="Y">Y</option><option value="Z">Z</option>
               </select>
-              <input type="text" name="category-field" class="w-full monospace" value="m n [p pr] [t tr] [k kr] r s h w j">
+              <input type="text" name="category-field" spellcheck="false" class="w-full monospace" value="m n [p pr] [t tr] [k kr] r s h w j">
 
               <button class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
@@ -163,7 +163,7 @@
                 <option value="V" selected="selected">V</option><option value="W">W</option><option value="X">X</option>
                 <option value="Y">Y</option><option value="Z">Z</option>
               </select>
-              <input type="text" name="category-field" class="w-full monospace" value="a, e, i, o, u, [aa, ee, oo, ii, uu]">
+              <input type="text" name="category-field" spellcheck="false" class="w-full monospace" value="a, e, i, o, u, [aa, ee, oo, ii, uu]">
 
               <button class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
@@ -182,7 +182,7 @@
                 <option value="V">V</option><option value="W">W</option><option value="X">X</option>
                 <option value="Y">Y</option><option value="Z">Z</option>
               </select>
-              <input type="text" name="category-field" class="w-full monospace" value="n, r, s,">
+              <input type="text" name="category-field" spellcheck="false" class="w-full monospace" value="n, r, s,">
 
               <button class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
@@ -207,7 +207,7 @@
                 <option value="$S">$S</option>
                 <option value="$W">$W</option>
               </select>
-              <input name="segment-field" type="text" value="CV(F)" class="w-full monospace">
+              <input name="segment-field" type="text" spellcheck="false" value="CV(F)" class="w-full monospace">
 
               <button disabled class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
@@ -224,44 +224,44 @@
           <select id="word-shape-distribution" aria-label="Default distribution type for word-shapes">
             <option value="flat">Flat</option>
             <option value="gusein-zade">Gusein-zade</option>
-            <option value="zipfian">Zipfian</option>
+            <option value="zipfian" selected>Zipfian</option>
           </select>
           <br><br>
 
 
           <label for="alphabet">Alphabet:</label><br>
           <div class="flex flex-col gap-2">
-            <input id="alphabet" type="text" class="monospace" aria-label="Pattern" value="a, b, c">
+            <input id="alphabet" type="text" spellcheck="false" class="monospace" aria-label="Pattern" value="a, b, c">
           </div>
           <br>
 
           
           <label for="word-shapes">Word-shapes:</label><br>
-          <textarea id="word-shapes" class="monospace">$S, I$, $ V</textarea>
+          <textarea spellcheck="false" id="word-shapes" class="monospace">$S, I$, $ V</textarea>
 
         <h3>Transforms</h3>
 
           <label for="graphemes">Graphemes:</label><br>
           <div class="flex flex-col gap-2">
-            <input id="graphemes" type="text" class="monospace" aria-label="Pattern" value="a, b, c">
+            <input id="graphemes" type="text" spellcheck="false" class="monospace" aria-label="Pattern" value="a, b, c">
           </div>
         <br><br>
           
         <div id="transform-container">
           <div class="flex flex-col gap-2">
             <div class="flex items-center gap-2">
-              <input name="transform-target" type="text" placeholder="'a, 'e, 'i, 'o, 'u" class="w-full monospace">
+              <input name="transform-target" spellcheck="false" type="text" placeholder="'a, 'e, 'i, 'o, 'u" class="w-full monospace">
               <a>&#8594;</a>
-              <input name="transform-after" type="text" placeholder="á, é, í, ó, ú" class="w-full monospace">
+              <input name="transform-after" spellcheck="false" type="text" placeholder="á, é, í, ó, ú" class="w-full monospace">
               <button class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
           </div>
 
           <div class="flex flex-col gap-2">
             <div class="flex items-center gap-2">
-              <input name="transform-target" type="text" value="yi, tu, ss, nn, ll" class="w-full monospace">
+              <input name="transform-target" spellcheck="false" type="text" value="yi, tu, ss, nn, ll" class="w-full monospace">
               <a>&#8594;</a>
-              <input name="transform-after" type="text" value="tsi, tsu, ts, ny, ly" class="w-full monospace">
+              <input name="transform-after" spellcheck="false" type="text" value="tsi, tsu, ts, ny, ly" class="w-full monospace">
               <button class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
           </div>

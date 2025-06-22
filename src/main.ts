@@ -246,6 +246,7 @@ $(window).on('load', function () {
         // Create input field
         const inputElement = document.createElement("input");
         inputElement.type = "text";
+        inputElement.spellcheck = false;
         inputElement.className = "w-full monospace";
         inputElement.name = "category-field";
 
@@ -297,6 +298,7 @@ $(window).on('load', function () {
         // Create input field
         const inputElement = document.createElement("input");
         inputElement.type = "text";
+        inputElement.spellcheck = false;
         inputElement.className = "w-full monospace";
         inputElement.name = "segment-field";
 
@@ -323,9 +325,9 @@ $(window).on('load', function () {
         newElement.innerHTML = `
             <div class="flex flex-col gap-2">
                 <div class="flex items-center gap-2">
-                    <input name="transform-target" type="text" class="w-full monospace">
+                    <input name="transform-target" type="text" spellcheck="false" class="w-full monospace">
                     <a>→</a>
-                    <input name="transform-after" type="text" class="w-full monospace">
+                    <input name="transform-after" type="text" spellcheck="false" class="w-full monospace">
                     <button class="voca-delete"><i class="fa fa-trash"></i></button>
                 </div>
             </div>
@@ -640,6 +642,7 @@ const fileToInterface = (file: string): void => {
                     // Create input field
                     const inputElement = document.createElement("input");
                     inputElement.type = "text";
+                    inputElement.spellcheck = false
                     inputElement.className = "w-full monospace";
                     inputElement.name = "segment-field"
                     inputElement.value = field;
@@ -692,6 +695,7 @@ const fileToInterface = (file: string): void => {
                     // Create input field
                     const inputElement = document.createElement("input");
                     inputElement.type = "text";
+                    inputElement.spellcheck = false
                     inputElement.className = "w-full monospace";
                     inputElement.name = "category-field"
                     inputElement.value = field;
@@ -715,7 +719,7 @@ const fileToInterface = (file: string): void => {
 
 
 function clearFields(): void {
-    (document.getElementById("category-distribution") as HTMLSelectElement).selectedIndex = 0;
+    (document.getElementById("category-distribution") as HTMLSelectElement).selectedIndex = 1;
 
     document.getElementById('category-container')!.innerHTML = `
         <div class="flex flex-col gap-2">
@@ -727,7 +731,7 @@ function clearFields(): void {
                     }>${String.fromCharCode(65 + i)}</option>`
                 ).join("")}
               </select>
-              <input type="text" name="category-field" class="w-full monospace">
+              <input type="text" name="category-field" spellcheck="false" class="w-full monospace">
               <button class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
         </div>`;
@@ -739,12 +743,12 @@ function clearFields(): void {
                 <option value="$S">$S</option>
                 <option value="$W">$W</option>
               </select>
-              <input name="segment-field" type="text" class="w-full monospace">
+              <input name="segment-field" type="text" spellcheck="false" class="w-full monospace">
               <button disabled class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
         </div>`;
 
-    (document.getElementById("word-shape-distribution") as HTMLSelectElement).selectedIndex = 0;
+    (document.getElementById("word-shape-distribution") as HTMLSelectElement).selectedIndex = 2;
     (document.getElementById('word-shapes') as HTMLInputElement).value = "";
     (document.getElementById('optionals-weight') as HTMLInputElement).value = "10";
     (document.getElementById('alphabet') as HTMLInputElement).value = "";
