@@ -9,30 +9,29 @@ import { getCatSeg, GetTransform, makePercentage, extract_Value_and_Weight, reso
 
 class Resolver {
     public logger: Logger;
-    public num_of_words: number;
 
+    public num_of_words: number;
     public debug: boolean;
     public paragrapha: boolean;
-    public sort_words: boolean;
-    public capitalise_words: boolean;
     public remove_duplicates: boolean;
     public force_word_limit: boolean;
+    public sort_words: boolean;
+    public capitalise_words: boolean;
     public word_divider: string;
 
     public category_distribution: string;
-
-    
-    public categories: Map<string, [string[],number[]] >;
     private category_strings: Map<string, string>;
-
-    public optionals_weight: number;
+    public categories: Map<string, { graphemes:string[], weights:number[]} >;
+    
     public segments: Map<string, string>;
+    public optionals_weight: number;
     public wordshape_distribution: string;
-    public alphabet: string[];
-    public wordshapes: [ string[], number[] ];
     private wordshape_string: string;
+    public wordshapes: { items:string[], weights:number[]};
+    
+    public transforms: { target:string[], result:string[]}[];
     public graphemes: string[];
-    public transforms: [ string[], string[]];
+    public alphabet: string[];
 
     private file_line_num = 0;
 
@@ -95,9 +94,9 @@ class Resolver {
         this.wordshape_distribution = "flat";
         this.alphabet = [];
         this.wordshape_string = ""
-        this.wordshapes = [ [], [] ];
+        this.wordshapes = { items: [], weights: [] };
         this.graphemes = [];
-        this.transforms = [ [], [] ];
+        this.transforms = [];
     }
 
     
@@ -122,14 +121,17 @@ class Resolver {
                     continue;
                 }
                 
-                let [myName, field, valid] = GetTransform('→', line_value);
+                let [target, result, valid] = GetTransform(line_value);
 
                 if ( !valid ) {
-                    this.logger.warn(`Malformed transform, (transforms must look like 'old → new') at line ${this.file_line_num + 1}`)
+                    this.logger.warn(`Malformed transform, (transforms must look like 'old → new') at line ${this.file_line_num + 1}`);
+                    continue;
+                } else if ( target.length != result.length ){
+                    this.logger.warn(`Malformed transform had a missmatch of targets to results at line ${this.file_line_num + 1}`);
+                    continue;
                 }
 
-                this.add_transform(myName, field);
-                continue;
+                this.add_transform(target, result);
             }
 
             if (line.startsWith("category-distribution:")) {
@@ -139,14 +141,6 @@ class Resolver {
                     this.category_distribution = line_value;
                 } else {
                     throw new Error(`Invalid category-distribution option at line ${this.file_line_num + 1}`);
-                }
-            } else if (line.startsWith("num-syllables:")) {
-                line_value = line.substring(14).trim();
-
-                let syllableRange = line_value.split("-");
-                if (syllableRange.length != 2) {
-                    this.logger.warn(`No num-syllables value pair (it should look like 'min - max'. Min and max must be a number between 1 and 100) at line ${this.file_line_num + 1}`)
-                    continue;
                 }
 
             } else if (line.startsWith("wordshape-distribution:")) {
@@ -200,7 +194,7 @@ class Resolver {
                 line_value = line;
 
                 // Return word, field, valid, isCapital, hasDollarSign
-                let [myName, field, valid, isCapital, hasDollarSign] = getCatSeg('=', line_value);
+                let [myName, field, valid, isCapital, hasDollarSign] = getCatSeg(line_value);
 
                 if ( !valid || !isCapital ) {
                     continue;
@@ -261,14 +255,13 @@ class Resolver {
 
         let [resultStr, resultNum] = extract_Value_and_Weight(result, this.wordshape_distribution);
         for (let i = 0; i < resultStr.length; i++) {
-            this.wordshapes[0].push(resultStr[i]);
-            this.wordshapes[1].push(resultNum[i]); ///
+            this.wordshapes.items.push(resultStr[i]);
+            this.wordshapes.weights.push(resultNum[i]); ///
         } 
     }
 
-    add_transform(target:string, after:string) {
-        this.transforms[0].push(target);
-        this.transforms[1].push(after); ////
+    add_transform(target:string[], result:string[]) {
+        this.transforms.push( { target:target, result:result } );
     }
 
     expand_categories() {
@@ -282,7 +275,7 @@ class Resolver {
 
 
         for (const [key, value] of this.category_strings) {
-            const newCategoryField: [string[],number[]] = resolve_nested_categories(value, this.category_distribution);
+            const newCategoryField: { graphemes:string[], weights:number[]} = resolve_nested_categories(value, this.category_distribution);
             this.categories.set(key, newCategoryField);
         }
     }
@@ -349,8 +342,8 @@ class Resolver {
         let categories = [];
         for (const [key, value] of this.categories) {
             let catField:string[] = [];
-            for (let i = 0; i < value[0].length; i++) {
-                catField.push(`${value[0][i]}:${value[1][i]}`);
+            for (let i = 0; i < value.graphemes.length; i++) {
+                catField.push(`${value.graphemes[i]}:${value.weights[i]}`);
             }
             const category_field:string = `${catField.join(', ')}`;
 
@@ -363,13 +356,13 @@ class Resolver {
         }
 
         let wordshapes = [];
-        for (let i = 0; i < this.wordshapes[0].length; i++) {
-            wordshapes.push(`${this.wordshapes[0][i]}:${this.wordshapes[1][i]}`);
+        for (let i = 0; i < this.wordshapes.items.length; i++) {
+            wordshapes.push(`${this.wordshapes.items[i]}:${this.wordshapes.weights[i]}`);
         }
 
         let transforms = [];
-        for (let i = 0; i < this.transforms[0].length; i++) {
-            transforms.push(`${this.transforms[0][i]} → ${this.transforms[1][i]}`);
+        for (let i = 0; i < this.transforms.length; i++) {
+            transforms.push(`  ${this.transforms[i].target.join(", ")} → ${this.transforms[i].result.join(", ")}`);
         }
 
         this.logger.silent_info(
@@ -383,12 +376,16 @@ class Resolver {
             `\nCapitalise words:  ` + this.capitalise_words +
             `\nWord divider:      "` + this.word_divider + `"` +
             `\n\n~ FILE ~` +
-            `\nSegments {\n` + segments.join('\n') + `\n}` +
-            `\nOptionals-weight:       ` + this.optionals_weight +
+
             `\nCategory-distribution:  ` + this.category_distribution +
             `\nCategories {\n` + categories.join('\n') + `\n}` +
+
+            `\nSegments {\n` + segments.join('\n') + `\n}` +
+            `\nOptionals-weight:       ` + this.optionals_weight +
+
             `\nWordshape-distribution: ` + this.wordshape_distribution +
             `\nWordshapes:             ` + wordshapes.join(', ') + `\n}` +
+
             `\nTransforms {\n` + transforms.join('\n') + `\n}` +
             `\nGraphemes:              ` + this.graphemes.join(', ') +
             `\nAlphabet:               ` + this.alphabet.join(', ')

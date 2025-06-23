@@ -3,7 +3,7 @@ import Word from './word.js';
 // import { SoundSystem, createText, invalidItemAndWeight } from './wordgen.js';\
 import Logger from './logger.js';
 import collator from './collator.js';
-import { capitalize,randomEndPunctuation  } from './utilities.js';
+import { capitalise } from './utilities.js';
 
 class Text_Builder {
     public logger: Logger;
@@ -125,7 +125,7 @@ class Text_Builder {
         }
         if (this.capitalise_words){
             for (let i = 0; i < this.words.length; i++) {
-                this.words[i] = capitalize(this.words[i]);
+                this.words[i] = capitalise(this.words[i]);
             }
         }
         if (this.paragrapha){
@@ -136,18 +136,18 @@ class Text_Builder {
 
     paragraphify(words: string[]): string {
         if (words.length === 0) return '';
-        if (words.length === 1) return capitalize(words[0]) + randomEndPunctuation();
+        if (words.length === 1) return capitalise(words[0]) + this.randomEndPunctuation();
 
         const result: string[] = [];
 
         for (let i = 0; i < words.length; i++) {
             let word = words[i];
-            if (i === 0) word = capitalize(word);
+            if (i === 0) word = capitalise(word);
 
             if (i === words.length - 1) {
                 result.push(word); // Hold final punctuation until the end
             } else if (i % 7 === 0 && i !== 0) {
-                result.push(word + randomEndPunctuation()); // Full stop midstream
+                result.push(word + this.randomEndPunctuation()); // Full stop midstream
             } else if (i % 6 === 0 && i !== 0) {
                 result.push(word + ','); // Sprinkle commas
             } else {
@@ -161,9 +161,17 @@ class Text_Builder {
         paragraph = paragraph.replace(/[,\s]*$/, '');
 
         // Add final punctuation (., ?, or ! with weighted odds)
-        paragraph += randomEndPunctuation();
+        paragraph += this.randomEndPunctuation();
 
         return paragraph;
+    }
+
+    randomEndPunctuation(): string {
+        const roll = Math.random();
+        if (roll < 0.005) return '...';     // 0.4% chance of exclamation
+        if (roll < 0.03) return '!';     // 2% chance of exclamation
+        if (roll < 0.08) return '?';     // 5% chance of question
+        return '.';                      // 93% chance of full stop
     }
 }
 

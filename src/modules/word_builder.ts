@@ -7,15 +7,15 @@ import { weightedRandomPick, resolve_wordshape_sets } from './utilities'
 
 class Word_Builder {
     public logger: Logger;
-    public categories: Map<string, [string[],number[]] >;
-    public wordshapes: [ string[], number[] ];
+    public categories: Map< string, {graphemes:string[], weights:number[]} >;
+    public wordshapes: {items:string[], weights:number[]};
     public wordshape_distribution: string;
     public optionals_weight: number;
 
     constructor(
         logger: Logger,
-        categories: Map<string, [string[],number[]] >,
-        wordshapes: [ string[], number[] ],
+        categories: Map< string, {graphemes:string[], weights:number[]} >,
+        wordshapes: {items:string[], weights:number[]},
         wordshape_distribution: string,
         optionals_weight: number,
         debug: boolean,
@@ -33,7 +33,7 @@ class Word_Builder {
 
     make_word() : Word {
         // skeleton word looks like `CV(@, !)CVF[@, !]`
-        const skeleton_word:string | undefined = weightedRandomPick(this.wordshapes[0], this.wordshapes[1]);
+        const skeleton_word:string | undefined = weightedRandomPick(this.wordshapes.items, this.wordshapes.weights);
         if (skeleton_word === undefined) {
             throw new Error('undefined')
         }
@@ -50,7 +50,7 @@ class Word_Builder {
             }
             for (const [category_key, category_field] of this.categories) { //going through C = [[a, b, c], [1, 2, 3]]
                 if (category_key == new_char) {
-                    new_char = weightedRandomPick(category_field[0], category_field[1])
+                    new_char = weightedRandomPick(category_field.graphemes, category_field.weights)
                     break;
                 }
             }

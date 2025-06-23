@@ -1,8 +1,16 @@
 
 // This thing fetches the last item of an array
 const last = <T = never>(arr: ArrayLike<T> | null | undefined) =>
-    arr?.[arr.length - 1];
+  arr?.[arr.length - 1];
 
+function capitalise(str: string): string {
+    return str[0].toUpperCase() + str.slice(1);
+}
+
+const makePercentage = (input: string): number | null => {
+  const num = Number(input);
+  return Number.isInteger(num) && num >= 1 && num <= 100 ? num : null;
+};
 
 function validateCatSegName(str: string): [boolean, boolean] {
     const regex = /^[A-Z]$|^\$[A-Z]$/;
@@ -11,8 +19,10 @@ function validateCatSegName(str: string): [boolean, boolean] {
     return [regex.test(str), hasDollarSign];
 }
 
-function getCatSeg(divider: string, input: string): [string, string, boolean, boolean, boolean] {
-    if (input === "" || divider === "") {
+function getCatSeg(input: string): [string, string, boolean, boolean, boolean] {
+    const divider = "=";
+  
+    if (input === "") {
         return ['', '', false, false, false]; // Handle invalid inputs
     }
 
@@ -32,29 +42,31 @@ function getCatSeg(divider: string, input: string): [string, string, boolean, bo
     return [word, field, true, isValid, hasDollarSign]; // Return word, field, valid, isCapital, hasDollarSign
 }
 
-function GetTransform(divider: string, input: string): [string, string, boolean] {
-    if (input === "" || divider === "") {
-        return ['', '', false]; // Handle invalid inputs
+function GetTransform(input: string): [string[], string[], boolean] {
+  const divider = "→";
+    if (input === "") {
+        return [[], [], false]; // Handle invalid inputs
     }
 
     const divided = input.split(divider);
     if (divided.length !== 2) {
-        return ['', '', false]; // Ensure division results in exactly two parts
+        return [[], [], false]; // Ensure division results in exactly two parts
     }
 
-    const word = divided[0].trim();
-    const field = divided[1].trim();
-    if (word === "" || field === "") {
-        return ['', '', false]; // Handle empty parts
+    let target:any = divided[0].trim();
+    let result:any = divided[1].trim();
+
+    if (target === "" || result === "") {
+        return [[], [], false]; // Handle empty parts
     }
 
-    return [word, field, true]; // Return word, field, valid
+    target = target.split(/[,\s]+/).filter(Boolean);
+    result = result.split(/[,\s]+/).filter(Boolean);
+
+    return [target, result, true]; // Return word, field, valid
 }
 
-const makePercentage = (input: string): number | null => {
-  const num = Number(input);
-  return Number.isInteger(num) && num >= 1 && num <= 100 ? num : null;
-};
+
 
 function valid_words_brackets(str: string): boolean {
   const stack: string[] = [];
@@ -180,7 +192,7 @@ function flat_distribution(no_of_items: number): number[] {
 function resolve_nested_categories(
   input: string,
   default_distribution: string
-): [string[], number[]] {
+): { graphemes:string[], weights:number[]} {
   type Entry = { key: string; weight: number };
 
   function guseinzade_distribution(n: number): number[] {
@@ -302,7 +314,7 @@ function resolve_nested_categories(
   const evaluated = evaluate(input);
   const keys = evaluated.map(e => e.key);
   const weights = evaluated.map(e => e.weight);
-  return [keys, weights];
+  return { graphemes:keys, weights:weights};
 }
 
 function resolve_wordshape_sets(
@@ -360,20 +372,7 @@ function resolve_wordshape_sets(
     return finalPick;
 }
 
-function capitalize(str: string): string {
-    return str[0].toUpperCase() + str.slice(1);
-}
-function randomEndPunctuation(): string {
-    const roll = Math.random();
-    if (roll < 0.005) return '...';     // 0.4% chance of exclamation
-    if (roll < 0.03) return '!';     // 2% chance of exclamation
-    if (roll < 0.08) return '?';     // 5% chance of question
-    return '.';                      // 93% chance of full stop
-}
-
-
-
-
-export { last, makePercentage, getCatSeg, GetTransform,
-  valid_category_brackets, valid_words_brackets, extract_Value_and_Weight, weightedRandomPick,
-  resolve_nested_categories, resolve_wordshape_sets, capitalize, randomEndPunctuation };
+export {
+  last, capitalise, makePercentage, extract_Value_and_Weight, weightedRandomPick,
+  resolve_nested_categories, resolve_wordshape_sets,
+  valid_category_brackets, valid_words_brackets, getCatSeg, GetTransform };
