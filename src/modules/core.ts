@@ -4,27 +4,7 @@ import Transformer from './transformer.ts';
 import Text_Builder from './text_builder.ts';
 import Logger from './logger.ts';
 
-class Vocabug {
-    public text: string;
-    public errors: string[];
-    public warnings: string[];
-    public infos: string[];
-
-    constructor(
-        text: string,
-        errors: string[],
-        warnings: string[],
-        infos: string[]
-    ) {
-        this.text = text;
-        this.errors = errors;
-        this.warnings = warnings;
-        this.infos = infos;
-    }
-
-}
-
-function genWords(
+function gen_words(
     file: string,
     num_of_words: string,
     mode: string = 'word-list',
@@ -33,7 +13,7 @@ function genWords(
     remove_duplicates: boolean = true,
     force_word_limit: boolean = false,
     word_divider: string = " "
-): Vocabug {
+): { text:string, errors:string[], warnings:string[], infos:string[] } {
     const build_start = Date.now();
     const logger = new Logger();
     let text = '';
@@ -87,6 +67,8 @@ function genWords(
             resolver.alphabet
         );
 
+        // Yo! this is where we generate da words !!
+        // Wow. Such words
         while (!textBuilder.terminated) {
             let word = wordBuilder.make_word();
             word = transformer.do_transforms(word);
@@ -94,11 +76,12 @@ function genWords(
         }
 
         text = textBuilder.make_text();
+        
     } catch (e: unknown) {
         logger.error(typeof e === "string" ? e : e instanceof Error ? e.message : String(e));
     }
 
-    return new Vocabug(text, logger.errors, logger.warnings, logger.infos);
+    return { text:text, errors:logger.errors, warnings:logger.warnings, infos:logger.infos };
 }
 
-export default genWords;
+export default gen_words;
