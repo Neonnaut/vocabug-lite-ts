@@ -4,10 +4,12 @@ import Word from './word.js';
 import Logger from './logger.js';
 import collator from './collator.js';
 import { capitalise } from './utilities.js';
+import type Escape_Mapper from './escape_mapper.js';
 
 class Text_Builder {
     public logger: Logger;
     private build_start: number;
+    public escape_mapper: Escape_Mapper
 
     public num_of_words: number;
     public debug: boolean;
@@ -29,6 +31,7 @@ class Text_Builder {
 
     constructor(
         logger: Logger, build_start: number,
+        escape_mapper: Escape_Mapper,
 
         num_of_words: number,
         debug: boolean,
@@ -42,6 +45,7 @@ class Text_Builder {
     ) {
         this.logger = logger;
         this.build_start = build_start;
+        this.escape_mapper = escape_mapper;
 
         this.num_of_words = num_of_words;
         this.debug = debug;
@@ -67,18 +71,28 @@ class Text_Builder {
     }
 
     add_word(word:Word) {
+        let do_it:boolean = false;
+
         if (word.rejected) {
             this.num_of_rejects ++;
             this.num_of_duds ++;
-        } else if (this.remove_duplicates){
+        }
+        if (word.rejected && Word.debug) {
+            do_it = true; // record rejects with debug
+        } 
+        if (this.remove_duplicates){
             if (this.words.includes(word.get_last_form())) {
                 this.num_of_duplicates ++;
                 this.num_of_duds ++;
             } else {
-                this.words.push(word.get_word());
+                do_it = true;
             }
             
         } else{
+            do_it = true;
+        }
+
+        if (do_it) {
             this.words.push(word.get_word());
         }
 
@@ -88,16 +102,16 @@ class Text_Builder {
         } else if ((this.force_word_limit) && (Date.now() - this.build_start >= 30000) ) {
             this.terminated = true;
             if (this.remove_duplicates) {
-                this.logger.warn('Could not generate the requested amount of words. Try adding more (unique) word-shapes; or remove some reject transformations')
+                this.logger.warn('Could not generate the requested amount of words. Try adding more unique word-shapes or remove some reject transforms')
             } else {
-                this.logger.warn('Could not generate the requested amount of words. Try adding more word-shapes; or remove some reject transformations')
+                this.logger.warn('Could not generate the requested amount of words. Try adding more word-shapes or remove some reject transforms')
             }
         } else if ((this.num_of_duds >= this.upper_gen_limit) && (!this.force_word_limit)) {
             this.terminated = true;
             if (this.remove_duplicates) {
-                this.logger.warn('Could not generate the requested amount of words. Try adding more (unique) word-shapes; remove some reject transformations; or turn on force-word-limit')
+                this.logger.warn('Could not generate the requested amount of words. Try adding more unique word-shapes, remove some reject transforms, or turn on force-word-limit')
             } else {
-                this.logger.warn('Could not generate the requested amount of words. Try adding more word-shapes; remove some reject transformations; or turn on force-word-limit')
+                this.logger.warn('Could not generate the requested amount of words. Try adding more word-shapes, remove some reject transforms, or turn on force-word-limit')
             }
         }
     }
@@ -120,8 +134,14 @@ class Text_Builder {
             this.logger.info(`${this.num_of_rejects} words were rejected`)
         }
 
+        if (this.escape_mapper.counter != 0) {
+            for (let i = 0; i < this.words.length; i++) {
+                this.words[i] = this.escape_mapper.restoreEscapedChars(this.words[i]);
+            }
+        }
+
         if (this.sort_words){
-            this.words = collator( this.logger, this.words, this.alphabet  );
+            this.words = collator( this.logger, this.words, this.alphabet );
         }
         if (this.capitalise_words){
             for (let i = 0; i < this.words.length; i++) {

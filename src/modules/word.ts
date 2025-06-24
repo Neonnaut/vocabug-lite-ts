@@ -9,9 +9,9 @@ class Word {
     rejected: boolean;
 
     constructor(skeleton: string, baby: string, adult: string) {
-        this.transformations = [skeleton, baby];
-        this.forms = [baby, adult];
-        this.rejected = false; // This may be changed in transforms
+        this.transformations = ["genesis", "setosis", "categretion"];
+        this.forms = [skeleton, baby, adult];
+        this.rejected = false; // This may be changed in transforms or when the word is ""
     }
 
     get_last_form(): string { // Use this when sorting the words
@@ -26,7 +26,7 @@ class Word {
         let output: string | undefined = '';
         if (Word.debug) {
             for (let i = 0; i < this.forms.length; i++) {
-                output += `${this.transformations[i]} – ${this.forms[i]}\n`;
+                output += `<${this.transformations[i]}>: '${this.forms[i]}'\n`;
             }
             return output;
         }
@@ -38,6 +38,12 @@ class Word {
             output = output.charAt(0).toUpperCase() + output.slice(1);
         }
         return output;
+    }
+
+    record_transformation(rule:string, form:string): void {
+        this.transformations.push(rule);
+        this.forms.push(form);
+        
     }
 }
 

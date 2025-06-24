@@ -1,6 +1,7 @@
 // import { Fragment } from './rule.js';
 // import Word from './word.js';
 // import { SoundSystem, createText, invalidItemAndWeight } from './wordgen.js';\
+import type Escape_Mapper from './escape_mapper';
 import Logger from './logger';
 
 import { getCatSeg, GetTransform, makePercentage, extract_Value_and_Weight, resolve_nested_categories,
@@ -9,6 +10,7 @@ import { getCatSeg, GetTransform, makePercentage, extract_Value_and_Weight, reso
 
 class Resolver {
     public logger: Logger;
+    private escape_mapper: Escape_Mapper;
 
     public num_of_words: number;
     public debug: boolean;
@@ -37,6 +39,7 @@ class Resolver {
 
     constructor(
         logger: Logger,
+        escape_mapper: Escape_Mapper,
         num_of_words_string: string,
 
         mode: string,
@@ -47,6 +50,7 @@ class Resolver {
         word_divider: string
     ) {
         this.logger = logger;
+        this.escape_mapper = escape_mapper;
 
         if (num_of_words_string == '') {
             num_of_words_string = '100';
@@ -83,6 +87,8 @@ class Resolver {
         } else if (this.debug) {
             this.sort_words = false;
             this.capitalise_words = false;
+            this.remove_duplicates = false;
+            this.force_word_limit = false;
             this.word_divider = '\n';
         }
         
@@ -96,7 +102,7 @@ class Resolver {
         this.wordshape_string = ""
         this.wordshapes = { items: [], weights: [] };
         this.graphemes = [];
-        this.transforms = [];
+        this.transforms = [ {target:["^"], result:["^"]} ];
     }
 
     
@@ -114,7 +120,7 @@ class Resolver {
             if (line === '') { continue; } // Blank line !!
 
             if (transform_mode) {
-                line_value = line
+                line_value = this.escape_mapper.escapeBackslashPairs(line);
 
                 if (line_value.startsWith("END")) {
                     transform_mode = false;
@@ -124,10 +130,10 @@ class Resolver {
                 let [target, result, valid] = GetTransform(line_value);
 
                 if ( !valid ) {
-                    this.logger.warn(`Malformed transform, (transforms must look like 'old → new') at line ${this.file_line_num + 1}`);
+                    this.logger.warn(`Malformed transform, (transforms must look like 'old → new')`);
                     continue;
                 } else if ( target.length != result.length ){
-                    this.logger.warn(`Malformed transform had a missmatch of targets to results at line ${this.file_line_num + 1}`);
+                    this.logger.warn(`Malformed transform had a missmatch of concurrent-set targets to concurrent-set results at line ${this.file_line_num + 1}`);
                     continue;
                 }
 
@@ -140,7 +146,7 @@ class Resolver {
                 if (line_value == "flat" || line_value == "gusein-zade" || line_value == "zipfian") {
                     this.category_distribution = line_value;
                 } else {
-                    throw new Error(`Invalid category-distribution option at line ${this.file_line_num + 1}`);
+                    throw new Error(`Invalid category-distribution option`);
                 }
 
             } else if (line.startsWith("wordshape-distribution:")) {
@@ -149,7 +155,7 @@ class Resolver {
                 if (line_value == "flat" || line_value == "gusein-zade" || line_value == "zipfian") {
                     this.wordshape_distribution = line_value;
                 } else {
-                    throw new Error(`Invalid wordshape-distribution option at line ${this.file_line_num + 1}`);
+                    throw new Error(`Invalid wordshape-distribution option`);
                 }
 
             } else if (line.startsWith("optionals-weight:")) {
@@ -157,7 +163,7 @@ class Resolver {
 
                 let optionals_weight = makePercentage(line_value);
                 if (optionals_weight == null) {
-                    this.logger.warn(`Invalid optionals-weight, (it should be a number between 1 and 100) at line ${this.file_line_num + 1}`);
+                    this.logger.warn(`Invalid optionals-weight, (it should be a number between 1 and 100)`);
                     continue;
                 }
                 this.optionals_weight = optionals_weight;
@@ -167,12 +173,13 @@ class Resolver {
 
                 let alphabet = line_value.split(/[,\s]+/).filter(Boolean);
                 if (alphabet.length == 0){
-                    this.logger.warn(`Alphabet was empty at line ${this.file_line_num + 1}`);
+                    this.logger.warn(`An alphabet set was introduced but alphabet was empty`);
                 }
                 this.alphabet = alphabet;
 
             } else if (line.startsWith("words:")) {
                 line_value = line.substring(6).trim();
+                line_value = this.escape_mapper.escapeBackslashPairs(line_value);
 
                 if (line_value != "") {
                     this.wordshape_string = line_value;
@@ -180,10 +187,11 @@ class Resolver {
 
             } else if (line.startsWith("graphemes:")) {
                 line_value = line.substring(10).trim();
+                line_value = this.escape_mapper.escapeBackslashPairs(line_value);
 
                 let graphemes = line_value.split(/[,\s]+/).filter(Boolean);
                 if (graphemes.length == 0){
-                    this.logger.warn(`Graphemes was empty at line ${this.file_line_num + 1}`);
+                    this.logger.warn(`A graphemes set was intoduced but graphemes was empty`);
                 }
                 this.graphemes = graphemes;
 
@@ -192,6 +200,7 @@ class Resolver {
 
             } else {
                 line_value = line;
+                line_value = this.escape_mapper.escapeBackslashPairs(line_value);
 
                 // Return word, field, valid, isCapital, hasDollarSign
                 let [myName, field, valid, isCapital, hasDollarSign] = getCatSeg(line_value);
@@ -299,11 +308,10 @@ class Resolver {
         mappings: Map<string, string>,
         encloseInBrackets: boolean = false
     ): string {
-        function resolveMapping(str: string, history: string[]): string {
-            let result = '';
-            let i = 0;
+        const mappingKeys = [...mappings.keys()].sort((a, b) => b.length - a.length);
 
-            const mappingKeys: string[] = [...mappings.keys()].sort((a, b) => b.length - a.length);
+        const resolveMapping = (str: string, history: string[] = []): string => {
+            let result = '', i = 0;
 
             while (i < str.length) {
                 let matched = false;
@@ -311,14 +319,11 @@ class Resolver {
                 for (const key of mappingKeys) {
                     if (str.startsWith(key, i)) {
                         if (history.includes(key)) {
-                            result += '🔄'; // Cycle detected
+                            this.logger.warn(`A cycle was detected in mapping for "${key}"`);
+                            result += '🔃';
                         } else {
-                            const mappedValue: string = mappings.get(key) || '';
-                            let resolved = resolveMapping(mappedValue, [...history, key]);
-                            if (encloseInBrackets) {
-                                resolved = `[${resolved}]`;
-                            }
-                            result += resolved;
+                            let resolved = resolveMapping(mappings.get(key) || '', [...history, key]);
+                            result += encloseInBrackets ? `[${resolved}]` : resolved;
                         }
                         i += key.length;
                         matched = true;
@@ -326,17 +331,15 @@ class Resolver {
                     }
                 }
 
-                if (!matched) {
-                    result += str[i];
-                    i++;
-                }
+                if (!matched) result += str[i++];
             }
 
             return result;
-        }
+        };
 
-        return resolveMapping(input, []);
+        return resolveMapping(input);
     }
+
 
     create_record(): void {
         let categories = [];
@@ -365,7 +368,7 @@ class Resolver {
             transforms.push(`  ${this.transforms[i].target.join(", ")} → ${this.transforms[i].result.join(", ")}`);
         }
 
-        this.logger.silent_info(
+        let info:string =
             `~ OPTIONS ~\n` +
             `Num of words:      ` + this.num_of_words + 
             `\nDebug:             ` + this.debug + 
@@ -388,12 +391,11 @@ class Resolver {
 
             `\nTransforms {\n` + transforms.join('\n') + `\n}` +
             `\nGraphemes:              ` + this.graphemes.join(', ') +
-            `\nAlphabet:               ` + this.alphabet.join(', ')
+            `\nAlphabet:               ` + this.alphabet.join(', ');
+        //if (this.escape_mapper.counter != 0) {info = this.escape_mapper.restoreEscapedChars(info)}
 
-        );
+        this.logger.silent_info(info);
     }
-
-
 }
 
 export default Resolver;

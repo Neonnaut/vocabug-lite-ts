@@ -16,9 +16,9 @@ onmessage = function (event) {
         words: vocabug.text,
         file: event.data.file,
         
-        error_message: vocabug.errors.join("<br>"),
-        warning_message: vocabug.warnings.join("<br>"),
-        info_message: vocabug.infos.join("<br>")
+        error_message: vocabug.errors,
+        warning_message: vocabug.warnings,
+        info_message: vocabug.infos
     });
 }
 

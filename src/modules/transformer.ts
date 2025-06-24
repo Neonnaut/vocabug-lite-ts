@@ -20,7 +20,7 @@ class Transformer {
     }
 
     // Updated spelling here
-    tokenise(input: string, graphemes: string[]): string[] {
+    graphemosis(input: string, graphemes: string[]): string[] {
         const tokens: string[] = [];
         let i = 0;
         while (i < input.length) {
@@ -43,61 +43,126 @@ class Transformer {
     }
 
     applyTransform(
-    tokens: string[],
-    transform: Transform
+        word: Word,
+        tokens: string[],
+        transform: { target: string[], result: string[] }
     ): string[] {
-    let resultTokens = [...tokens];
-    const { target, result } = transform;
+        let applied:boolean = false;
+        const { target, result } = transform;
 
-    if (target.length !== result.length) {
-        throw new Error("Mismatched target/result lengths in transform");
-    }
-
-    for (let i = 0; i < target.length; i++) {
-        const search = target[i];
-        const replacement = result[i];
-
-        if (search.startsWith("#")) {
-            const targetStr = search.slice(1);
-        if (resultTokens.slice(0, targetStr.length).join("") === targetStr) {
-            resultTokens.splice(0, targetStr.length, replacement);
+        if (target.length !== result.length) {
+            throw new Error("Mismatched target/result concurrent set lengths in a transform");
         }
-        } else if (search.endsWith("#")) {
-            const targetStr = search.slice(0, -1);
-        if (
-            resultTokens.slice(-targetStr.length).join("") === targetStr
-        ) {
-            resultTokens.splice(
-            resultTokens.length - targetStr.length,
-            targetStr.length,
-            replacement
-            );
-        }
-        } else {
-        for (let j = 0; j <= resultTokens.length - 1; j++) {
-            const window = resultTokens.slice(j, j + search.length).join("");
-            if (window === search) {
-            resultTokens.splice(j, search.length, replacement);
-            j += search.length - 1;
+
+        const replacements: { index: number; length: number; replacement: string }[] = [];
+
+        for (let i = 0; i < target.length; i++) {
+            const rawSearch = target[i];
+            const isDelete = result[i] === "^";
+            const replacement = isDelete ? "" : result[i];
+
+            if (replacement == "^REJECT") {
+                for (let j = 0; j <= tokens.length - rawSearch.length; j++) {
+                    const window = tokens.slice(j, j + rawSearch.length).join("");
+                    if (window === rawSearch) {
+                        word.rejected = true;
+                        word.record_transformation(`${transform.target.join(", ")} → ^REJECT`, "❌");
+                        return tokens;
+                    }
+                }
+            }
+            // Prefix match
+            if (rawSearch.startsWith("#")) {
+                const needle = rawSearch.slice(1);
+                const head = tokens.slice(0, needle.length).join("");
+                if (head === needle) {
+                    replacements.push({ index: 0, length: needle.length, replacement });
+                    applied = true;
+                }
+
+            // Suffix match
+            } else if (rawSearch.endsWith("#")) {
+                const needle = rawSearch.slice(0, -1);
+                const tail = tokens.slice(-needle.length).join("");
+                if (tail === needle) {
+                    replacements.push({
+                        index: tokens.length - needle.length,
+                        length: needle.length,
+                        replacement
+                    });
+                    applied = true;
+                }
+
+                // Anywhere match
+                } else {
+                    for (let j = 0; j <= tokens.length - rawSearch.length; j++) {
+                        const window = tokens.slice(j, j + rawSearch.length).join("");
+                    if (window === rawSearch) {
+                        replacements.push({ index: j, length: rawSearch.length, replacement });
+                        applied = true;
+                    }
+                }
             }
         }
-        }
-    }
 
-    return resultTokens;
+        // Apply all replacements non-destructively
+        replacements.sort((a, b) => a.index - b.index);
+        const blocked = new Set<number>();
+        const resultTokens: string[] = [];
+
+        let i = 0;
+        while (i < tokens.length) {
+            const match = replacements.find(r =>
+                r.index === i &&
+                ![...Array(r.length).keys()].some(k => blocked.has(i + k))
+            );
+
+            if (match) {
+                if (match.replacement !== "") {
+                    resultTokens.push(match.replacement);
+                }
+            for (let k = 0; k < match.length; k++) {
+                blocked.add(i + k);
+            }
+            i += match.length;
+            } else {
+                resultTokens.push(tokens[i]);
+                i++;
+            }
+        }
+
+        if (applied) {
+            word.record_transformation(`${transform.target.join(", ")} → ${transform.result.join(", ")}`, resultTokens.join("·"));
+        }
+        return resultTokens;
     }
 
     do_transforms(
         word: Word,
     ): Word {
-    let tokens = this.tokenise(word.get_last_form(), this.graphemes); // Updated here as well
+        if (this.transforms.length == 0) {
+            return word; // No transforms 
+        }
 
-    for (const t of this.transforms) {
-        tokens = this.applyTransform(tokens, t);
-    }
+        let tokens = this.graphemosis(word.get_last_form(), this.graphemes);
+        word.record_transformation("graphemosis", `${tokens.join("·")}`);
 
-    word.forms.push(tokens.join(""));
-    return word;
+        for (const t of this.transforms) {
+            if (word.rejected) {
+                break;
+            }
+            tokens = this.applyTransform(word, tokens, t);
+            if (tokens.length == 0) {
+                word.rejected = true;
+                word.record_transformation(`REJECT NULL WORD`, `❌`);
+            }
+        }
+
+        if (!word.rejected) {
+            word.record_transformation("retrographemosis", `${tokens.join("")}`);
+        }
+
+        return word;
     }
 }
 

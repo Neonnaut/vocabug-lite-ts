@@ -3,6 +3,7 @@ import Word_Builder from './word_builder.ts';
 import Transformer from './transformer.ts';
 import Text_Builder from './text_builder.ts';
 import Logger from './logger.ts';
+import Escape_Mapper from './escape_mapper.ts'; 
 
 function gen_words(
     file: string,
@@ -19,8 +20,11 @@ function gen_words(
     let text = '';
 
     try {
+        const escape_mapper = new Escape_Mapper(); // Initialize Escape_Mapper to ensure it's ready for use
+
         const resolver = new Resolver(
             logger,
+            escape_mapper,
             num_of_words,
             mode,
             sort_words,
@@ -56,6 +60,7 @@ function gen_words(
         const textBuilder = new Text_Builder(
             logger,
             build_start,
+            escape_mapper,
             resolver.num_of_words,
             resolver.debug,
             resolver.paragrapha,

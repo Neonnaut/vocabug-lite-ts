@@ -35,7 +35,7 @@ class Word_Builder {
         // skeleton word looks like `CV(@, !)CVF[@, !]`
         const skeleton_word:string | undefined = weightedRandomPick(this.wordshapes.items, this.wordshapes.weights);
         if (skeleton_word === undefined) {
-            throw new Error('undefined')
+            throw new Error('A word was undefined')
         }
 
         // baby word looks like `CVCVF!`
@@ -46,7 +46,7 @@ class Word_Builder {
         for (let i = 0; i < baby_word.length; i++) { // going through each char of baby
             let new_char:string = baby_word[i];
             if (!new_char){
-                throw new Error("")
+                throw new Error("This should not have happened")
             }
             for (const [category_key, category_field] of this.categories) { //going through C = [[a, b, c], [1, 2, 3]]
                 if (category_key == new_char) {

@@ -330,7 +330,7 @@ function resolve_wordshape_sets(
     let outputs: [string[], number[]];
 
     if (!valid_words_brackets(input_list)) {
-        throw new Error('bad thing');
+        throw new Error('A word-shape had missmatched brackets');
     }
 
     // Resolve optional sets in round brackets based on weight

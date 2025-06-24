@@ -63,21 +63,29 @@
             <li><a href="#vocEscapeTransform">Transform character escape</a></li>
           </ol>
           </li>
-
-          <li><a href="#vocHTMLEntities">HTML Entities</a></li>
-          
-          
-        </ol>
-        </li>
-
-
-        <li><a href="#vocCategories">Categories</a>
-        <ol class="nice-list">
-          <li><a href="#vocCategoryinCategory">Categories inside categories and category-sets</a></li>
         </ol>
         </li>
 
         <li><a href="#vocCategoryWeights">Assigning weights</a></li>
+
+
+        <li><a href="#vocCategories">Categories</a>
+        <ol class="nice-list">
+          <li><a href="#vocDefaultCategoryDistribution">Default category distribution</a></li>
+
+          <li><a href="#vocCategoryinCategory">Categories inside categories and category-sets</a></li>
+        </ol>
+        </li>
+
+        
+
+        <li><a href="#vocSegments">Segments</a>
+        <ol class="nice-list">
+          <li><a href="#vocOptionalsWeight">Optionals weight</a></li>
+          <li><a href="#vocOptionalsWeight">Min and max syllables</a></li>
+        </ol>
+        </li>
+
         <li><a href="#vocBuildingWords">Building words</a>
         <ol class="nice-list">
           <li><a href="#vocWords">Words</a>
@@ -90,28 +98,21 @@
           <li><a href="#vocPickOne">Pick-one-set</a></li>
           <li><a href="#vocOptional">Optional-set</a></li>
           <li><a href="#vocInterSet">Inter-set</a></li>
-        </ol>
-        </li>
-        <li><a href="#vocAlphabetisationAndGraphs">Alphabetisation and graphs</a>
-        <ol class="nice-list">
+
           <li><a href="#vocAlphabetisation">Alphabetisation</a></li>
-          <li>
-            <a href="#vocGraphs">Defining graphemes</a>
-            <ol class="nice-list">
-              <li><a href="#vocAlternativeGraphs">Alternative graphemes</a></li>
-            </ol>
-            <li><a href="#vocInvisibility">Invisibility</a></li>
-          </ol>
+        </ol>
         </li>
 
         <li><a href="#nascTransform">Transform</a>
         <ol class="nice-list">
 
-        <li><a href="#nascConcurrentSet">Concurrent-set</a></li>
-        <li><a href="#nascReject">Reject</a></li>
-        
+          <li><a href="#vocGraphs">Defining graphemes</a></li>
 
-        <li><a href="#nascInsertionAndDeletion">Insertion and deletion</a></li>
+          <li><a href="#nascConcurrentSet">Concurrent-set</a></li>
+          <li><a href="#nascReject">Reject</a></li>
+          
+
+          <li><a href="#nascInsertionAndDeletion">Insertion and deletion</a></li>
 
         </ol></li>
 
@@ -123,7 +124,6 @@
 
       <h2 id="vocInterface"><a class="head-num">2</a>Interface</h2>
       <ul class="paragraphian">
-        <li>The textbox at the top of the program is the <code class="example">definition-build editor</code>. A definition-build defines the graphemes, frequencies, word-shapes and transformations that generate the final words. There will already be a default definition-build in the definition-build editor, or the previous definition-build that generated words</li>
         <li>Use the <code class="example">Generate</code> button to see Vocabug produce words</li>
         <li>Use the <code class="example">Copy</code> button to copy the words to the clipboard</li>
         <li>Use the <code class="example">Clear</code> button to clear all fields and generated words</li>
@@ -135,7 +135,6 @@
         <li><code class="example">Word-list mode</code> will produce a list of words</li>
         <li><code class="example">Paragraph mode</code> will produce words that look vaguely like sentences by injecting punctuation into the word list and capitalising the first word of each sentence</li>
         <li><code class="example">Debug mode</code> will show, line by line, each step in creating each word</li>
-        <li><code class="example">Editor wrap lines</code> will make the definition-build editor jump to the next line if the line escapes the width of the definition-build editor</li>
         <li><code class="example">Show keyboard</code> will reveal a 'keyboard' below the editor</li>
         <li><code class="example">Remove duplicates</code> will make sure all words generated are unique</li>
         <li><code class="example">Force words</code> will force the generator to try and generate the complete number of words requested within 30 seconds, despite the number of rejections / duplicates removed</li>
@@ -151,10 +150,10 @@
       </ul>
 
       <h2 id="vocAboutGraphemes"><a class="head-num">4</a>About graphemes</h2>
-      <p>Graphemes are indivisible meaningful characters that make a generated word in Vocabug. Phonemes can be thought of as graphemes. If we use English words <code class="example">sky</code> and <code class="example">shy</code> as examples to illustrate this, <code class="example">sky</code> is made up by the graphemes <code class="example">s</code> + <code class="example">k</code> + <code class="example">y</code>, while <code class="example">shy</code> is made up by <code class="example">sh</code> + <code class="example">y</code>.</p>
+      <p>Graphemes are indivisible meaningful characters that make a generated word. Phonemes can be thought of as graphemes. If we use English words <code class="example">sky</code> and <code class="example">shy</code> as examples to illustrate this, <code class="example">sky</code> is made up by the graphemes <code class="example">s</code> + <code class="example">k</code> + <code class="example">y</code>, while <code class="example">shy</code> is made up by <code class="example">sh</code> + <code class="example">y</code>.</p>
 
       <h3 id="vocNullGrapheme"><a class="head-num">4.1</a>Null grapheme</h3>
-      <p>If a word is built using the syntax character <code class="example">~</code>, it will disappear in the generated word. In other words <code class="example">~</code> is a null grapheme. If you want to use <code class="example">~</code> as a grapheme, you will need to <a href="#vocWordCreationEscape">escape it</a>. To use other syntax characters as graphemes, they must be escaped too.</p>
+      <p>If a word is built using the syntax character <code class="example">^</code>, it will disappear in the generated word. In other words <code class="example">^</code> is a null grapheme. If you want to use <code class="example">^</code> as a grapheme, you will need to <a href="#vocWordCreationEscape">escape it</a>. To use other syntax characters as graphemes, they must be escaped too.</p>
 
       <h3 id="vocEscapingCharacters"><a class="head-num">4.2</a>Escaping characters</h3>
       <p>A character after the syntax character <code class="example">\</code> ignores any meaning it might have had in the generator, including backslashes themselves. This way, anything including capital letters that have already been defined as categories, brackets, even spaces can be generated or targeted in transformations</p>
@@ -170,21 +169,10 @@
         </thead>
 
         <tbody>
+          
           <tr>
-            <td><code class="example">;</code></td>
-            <td><a href="#vocComments">Comment</a></td>
-          </tr>
-          <tr>
-            <td><code class="example">{&</code>, <code class="example">}</code></td>
-            <td><a href="#vocHTMLEntities">HTML Entities</a></td>
-          </tr>
-          <tr>
-            <td><code class="example">C</code>, <code class="example">D</code>, <code class="example">Ḱ</code>, ...</td>
+            <td><code class="example">C</code>, <code class="example">D</code>, <code class="example">K</code>, ...</td>
             <td>Any one-length character can refer to a <a href="#vocCategories">category</a></td>
-          </tr>
-          <tr>
-            <td><code class="example">{</code>, <code class="example">}</code></td>
-            <td>References a <a href="#vocLongFormCategory">long form category name</a></td>
           </tr>
           <tr>
             <td><code class="example">,</code></td>
@@ -195,20 +183,8 @@
             <td>Space, separates choices. An alternative to commas</td>
           </tr>
           <tr>
-            <td><code class="example">$</code></td>
-            <td>Defines a <a href="#vocSegments">segment</a></td>
-          </tr>
-          <tr>
             <td><code class="example">:</code></td>
             <td>Gives weight to a grapheme, <a href="#vocSegments">segments</a>, set, or word-shape</td>
-          </tr>
-          <tr>
-            <td><code class="example">?</code></td>
-            <td>Gives probability of an <a href="#vocOptional">optional-set</a> being chosen</td>
-          </tr>
-          <tr>
-            <td><code class="example">@</code></td>
-            <td>Gives <a href="#vocInterSetWeight">weight of an inter-set</a> being chosen over others</td>
           </tr>
           <tr>
             <td><code class="example">[</code>, <code class="example">]</code></td>
@@ -217,10 +193,6 @@
           <tr>
             <td><code class="example">(</code>, <code class="example">)</code></td>
             <td><a href="#vocOptional">Optional-set</a></td>
-          </tr>
-          <tr>
-            <td><code class="example">&lt;</code>, <code class="example">&gt;</code></td>
-            <td><a href="#vocInterSet">Inter-set</a></td>
           </tr>
           <tr>
             <td><code class="example">\</code></td>
@@ -242,93 +214,14 @@
 
         <tbody>
           <tr>
-            <td><code class="example">;</code></td>
-            <td><a href="#vocComments">Comment</a></td>
-          </tr>
-          <tr>
-            <td><code class="example">&gt;</code>, <code class="example">-&gt;</code>, <code class="example">=&gt;</code>, <code class="example">⇒</code>, <code class="example">→</code></td>
-            <td>Indicates <a href="#nascTheChange">change</a></td>
-          </tr>
-          <tr>
-            <td><code class="example">,</code></td>
-            <td>Separates choices</td>
-          </tr>
-          <tr>
-            <td><code class="example">[</code>, <code class="example">]</code></td>
-            <td><a href="#nascConcurrentSet">Concurrent-set</a> or <a href="#nascMergingSet">merging-set</a></td>
-          </tr>
-          <tr>
-            <td><code class="example">(</code>, <code class="example">)</code></td>
-            <td><a href="#nascOptionalSet">Optional-set</a></td>
-          </tr>
-          <tr>
-            <td><code class="example">~REJECT</code></td>
-            <td><a href="#nascReject">Rejects</a> a word</td>
-          </tr>
-          <tr>
-            <td><code class="example">/</code></td>
-            <td><a href="#nascTheCondition">The condition</a> follows this character</td>
-          </tr>
-          <tr>
-            <td><code class="example">_</code></td>
-            <td>The underscore <code class="example">_</code> is a reference to the target</td>
-          </tr>
-          <tr>
             <td><code class="example">#</code></td>
             <td><a href="#nascWordBoundary">Word boundary</a></td>
-          </tr>
-          <tr>
-            <td><code class="example">$</code></td>
-            <td><a href="#nascSyllableBoundary">Syllable boundary</a></td>
-          </tr>
-          <tr>
-            <td><code class="example">!</code></td>
-            <td><a href="#nascTheException">The exception</a> follows this character</td>
-          </tr>
-          <tr>
-            <td><code class="example">{</code>, <code class="example">}</code></td>
-            <td><a href="#nascUsingCategories">Category</a> or <a href="#nascFeature">feature-matrix</a></td>
-          </tr>
-          <tr>
-            <td><code class="example">*</code></td>
-            <td><a href="#nascWildcard">Wildcard</a>, matches exactly 1 of any character</td>
-          </tr>
-          <tr>
-            <td><code class="example">"</code></td>
-            <td><a href="#nascDittoMark">Ditto-mark</a>, matches exactly 1 of the previous character</td>
-          </tr>
-          <tr>
-            <td><code class="example">+</code></td>
-            <td><a href="#nascPlusMark">Plus-mark</a>, matches 1 or more of the previous character</td>
-          </tr>
-          <tr>
-            <td><code class="example">^</code>, <code class="example">…</code></td>
-            <td><a href="#nascAnythingsMark">Anythings-mark</a>, matches 1 or more of any character. It is non-greedy</td>
-          </tr>
-          <tr>
-            <td><code class="example">=[</code>, <code class="example">]</code></td>
-            <td><a href="#nascQuantifier">Quantifier</a></td>
-          </tr>
-          <tr>
-            <td><code class="example">&lt;[</code>, <code class="example">]</code></td>
-            <td><a href="#nascBlocker">Blocker</a></td>
-          </tr>
-          <tr>
-            <td><code class="example">@[</code>, <code class="example">]</code></td>
-            <td><a href="#nascPositioner">Positioner</a></td>
           </tr>
           <tr>
             <td><code class="example">~</code></td>
             <td><a href="#nascInsertionAndDeletion">Insertion</a> when in <code class="example">TARGET</code>, <a href="#nascInsertionAndDeletion">deletion</a> when in <code class="example">RESULT</code></td>
           </tr>
-          <tr>
-            <td><code class="example">|</code></td>
-            <td>Indicates <a href="#nascMetathesis">metathesis</a>, and the reordered contents</td>
-          </tr>
-          <tr>
-            <td><code class="example">1</code>, <code class="example">2</code>, ... <code class="example">9</code></td>
-            <td>In a <a href="#nascMetathesis">metathesis</a> rule, in <code class="example">RESULT</code>, these represent the changing graphemes</td>
-          </tr>
+          
           <tr>
             <td><code class="example">\</code></td>
             <td>Escapes a character after it</td>
@@ -336,13 +229,9 @@
         </tbody>
         </table>
 
-      <h3 id="vocHTMLEntities"><a class="head-num">4.3</a>HTML entities</h3>
-      <p>Enclosing it in curly brackets <code class="example">{</code> and <code class="example">}</code>, the name, or hex-code of a HTML entity will be decoded at the very end of the definition build. For example <code class="example">{&amp;Agrave}</code> will give <code class="example">&Agrave;</code>, and <code class="example">{&amp;#x2603}</code> will give <code class="example">{&#x2603;}</code></p>
-      <p>If using the name of a HTML entity, you must preface it with <code class="example">&</code>. When using the hex-code of a HTML entity, you must preface it with <code class="example">&amp;#</code>. You cannot end the name or hex-code of the entity with a semicolon.</p>
-
 
       <h2 id="vocCategories"><a class="head-num">5</a>Categories</h2>
-      <p>A category is a set of <a href="#vocGraphemes">graphemes</a> with a name. The name is usually a singular-length character, but can be <a href="#vocLongFormCategory">long-form</a>. For example:</p>
+      <p>A category is a set of <a href="#vocGraphemes">graphemes</a> with a key. The key is a singular-length capital letter. For example:</p>
       <pre class="example">C = t, n, k, m, ch, l, ꞌ, s, r, d, h, w, b, y, p, g
 F = n, l, ꞌ, t, k, r, p
 V = a, i, e, u, o</pre>

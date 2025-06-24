@@ -5,6 +5,8 @@ function collator(logger:Logger, words: string[], customAlphabet: string[]): str
     if (customAlphabet.length == 0) {
         return words.sort((Intl.Collator().compare));
     }
+
+    customAlphabet.push("🔃")
     
     const orderMap = new Map<string, number>();
     customAlphabet.forEach((char, index) => orderMap.set(char, index));
@@ -80,7 +82,7 @@ function tokenize(input: string): string[] {
     const sorted = [...words].sort(customCompare);
     const unknownGraphemes:string[] = Array.from(unknownSet);
     if (unknownGraphemes.length != 0) {
-        logger.warn(`Word(s) had the unknown graphemes(s): ${unknownGraphemes.join(', ')}; missing from alphabet. The words remain UNSORTED`)
+        logger.warn(`Words remain unsorted because Words had the unknown graphemess: "${unknownGraphemes.join(', ')}"; missing from alphabet`)
         return words;
     }
     

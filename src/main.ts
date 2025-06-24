@@ -53,14 +53,20 @@ $(window).on('load', function () {
 
         let output_message_html = '';
 
-        if (e.data.warning_message) {
-            output_message_html += `<p class='warning-message'>${e.data.warning_message}</p>`;
+        if (e.data.warning_message.length != 0) {
+            for (const message of e.data.warning_message) {
+                output_message_html += `<p class='warning-message'>${message}</p>`;
+            }
         }
-        if (e.data.error_message) {
-           output_message_html += `<p class='error-message'>${e.data.error_message}</p>`;
+        if (e.data.error_message.length != 0) {
+            for (const message of e.data.error_message) {
+                output_message_html += `<p class='error-message'>${message}</p>`;
+            }
         }
-        if (e.data.info_message) {
-            output_message_html += `<p class='info-message'>${e.data.info_message}</p>`;
+        if (e.data.info_message.length != 0) {
+            for (const message of e.data.info_message) {
+                output_message_html += `<p class='info-message'>${message}</p>`;
+            }
         }
         outputMessage.innerHTML = output_message_html;
 
@@ -103,8 +109,6 @@ $(window).on('load', function () {
     document.querySelectorAll("input[name='mode-type']").forEach((element) => {
         element.addEventListener("click", () => {
             const wordListMode = document.getElementById("word-list-mode") as HTMLInputElement;
-            const debugMode = document.getElementById("debug-mode") as HTMLInputElement;
-
             const sortWords = document.getElementById("sort-words") as HTMLInputElement;
             const capitaliseWords = document.getElementById("capitalise-words") as HTMLInputElement;
             const removeDuplicates = document.getElementById("remove-duplicates") as HTMLInputElement;
@@ -116,12 +120,6 @@ $(window).on('load', function () {
                 if (capitaliseWords) capitaliseWords.disabled = false;
                 if (removeDuplicates) removeDuplicates.disabled = false;
                 if (wordDivider) wordDivider.disabled = false;
-                if (forceWords) forceWords.disabled = false;
-            } else if (debugMode?.checked) {
-                if (sortWords) sortWords.disabled = true;
-                if (capitaliseWords) capitaliseWords.disabled = true;
-                if (removeDuplicates) removeDuplicates.disabled = false;
-                if (wordDivider) wordDivider.disabled = true;
                 if (forceWords) forceWords.disabled = false;
             } else {
                 [sortWords, capitaliseWords, removeDuplicates, wordDivider, forceWords].forEach(element => {
