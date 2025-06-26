@@ -1,6 +1,6 @@
 
 // This thing fetches the last item of an array
-const last = <T = never>(arr: ArrayLike<T> | null | undefined) =>
+const get_last = <T = never>(arr: ArrayLike<T> | null | undefined) =>
   arr?.[arr.length - 1];
 
 function capitalise(str: string): string {
@@ -372,7 +372,16 @@ function resolve_wordshape_sets(
     return finalPick;
 }
 
+function parse_distribution(value:string):string {
+  if (value.toLowerCase().startsWith("g")) {
+    return "gusein-zade";
+  } else if (value.toLowerCase().startsWith("z")) {
+    return "zipfian";
+  }
+  return "flat";
+}
+
 export {
-  last, capitalise, makePercentage, extract_Value_and_Weight, weightedRandomPick,
-  resolve_nested_categories, resolve_wordshape_sets,
+  get_last, capitalise, makePercentage, extract_Value_and_Weight, weightedRandomPick,
+  resolve_nested_categories, resolve_wordshape_sets, parse_distribution,
   valid_category_brackets, valid_words_brackets, getCatSeg, GetTransform };

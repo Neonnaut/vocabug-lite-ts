@@ -1,11 +1,8 @@
-// import { Fragment } from './rule.js';
-// import Word from './word.js';
-// import { SoundSystem, createText, invalidItemAndWeight } from './wordgen.js';\
 import type Escape_Mapper from './escape_mapper';
 import Logger from './logger';
 
 import { getCatSeg, GetTransform, makePercentage, extract_Value_and_Weight, resolve_nested_categories,
-    valid_words_brackets, valid_category_brackets
+    valid_words_brackets, valid_category_brackets, parse_distribution
  } from './utilities'
 
 class Resolver {
@@ -120,7 +117,7 @@ class Resolver {
             if (line === '') { continue; } // Blank line !!
 
             if (transform_mode) {
-                line_value = this.escape_mapper.escapeBackslashPairs(line);
+                line_value = line;
 
                 if (line_value.startsWith("END")) {
                     transform_mode = false;
@@ -143,20 +140,12 @@ class Resolver {
             if (line.startsWith("category-distribution:")) {
                 line_value = line.substring(22).trim().toLowerCase();
 
-                if (line_value == "flat" || line_value == "gusein-zade" || line_value == "zipfian") {
-                    this.category_distribution = line_value;
-                } else {
-                    throw new Error(`Invalid category-distribution option`);
-                }
+                this.category_distribution = parse_distribution(line_value);
 
             } else if (line.startsWith("wordshape-distribution:")) {
                 line_value = line.substring(23).trim().toLowerCase();
 
-                if (line_value == "flat" || line_value == "gusein-zade" || line_value == "zipfian") {
-                    this.wordshape_distribution = line_value;
-                } else {
-                    throw new Error(`Invalid wordshape-distribution option`);
-                }
+                this.wordshape_distribution = parse_distribution(line_value);
 
             } else if (line.startsWith("optionals-weight:")) {
                 line_value = line.substring(17).trim();
@@ -187,7 +176,6 @@ class Resolver {
 
             } else if (line.startsWith("graphemes:")) {
                 line_value = line.substring(10).trim();
-                line_value = this.escape_mapper.escapeBackslashPairs(line_value);
 
                 let graphemes = line_value.split(/[,\s]+/).filter(Boolean);
                 if (graphemes.length == 0){
@@ -392,7 +380,6 @@ class Resolver {
             `\nTransforms {\n` + transforms.join('\n') + `\n}` +
             `\nGraphemes:              ` + this.graphemes.join(', ') +
             `\nAlphabet:               ` + this.alphabet.join(', ');
-        //if (this.escape_mapper.counter != 0) {info = this.escape_mapper.restoreEscapedChars(info)}
 
         this.logger.silent_info(info);
     }

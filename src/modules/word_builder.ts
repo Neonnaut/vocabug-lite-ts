@@ -1,12 +1,12 @@
-// import { Fragment } from './rule.js';
 import Word from './word.js';
-// import { SoundSystem, createText, invalidItemAndWeight } from './wordgen.js';\
 import Logger from './logger.js';
+import Escape_Mapper from './escape_mapper.js';
 
 import { weightedRandomPick, resolve_wordshape_sets } from './utilities'
 
 class Word_Builder {
     public logger: Logger;
+    public escape_mapper: Escape_Mapper;
     public categories: Map< string, {graphemes:string[], weights:number[]} >;
     public wordshapes: {items:string[], weights:number[]};
     public wordshape_distribution: string;
@@ -14,29 +14,31 @@ class Word_Builder {
 
     constructor(
         logger: Logger,
+        escape_mapper: Escape_Mapper,
         categories: Map< string, {graphemes:string[], weights:number[]} >,
         wordshapes: {items:string[], weights:number[]},
         wordshape_distribution: string,
         optionals_weight: number,
         debug: boolean,
-        capitalise_words: boolean
     ) {
         this.logger = logger;
+        this.escape_mapper = escape_mapper;
         this.categories = categories;
         this.wordshapes = wordshapes;
         this.wordshape_distribution = wordshape_distribution;
         this.optionals_weight = optionals_weight;
 
         Word.debug = debug;
-        Word.capitalise_words = capitalise_words;
     }
 
     make_word() : Word {
         // skeleton word looks like `CV(@, !)CVF[@, !]`
-        const skeleton_word:string | undefined = weightedRandomPick(this.wordshapes.items, this.wordshapes.weights);
+        let skeleton_word:string | undefined = weightedRandomPick(this.wordshapes.items, this.wordshapes.weights);
         if (skeleton_word === undefined) {
             throw new Error('A word was undefined')
         }
+
+
 
         // baby word looks like `CVCVF!`
         const baby_word:string = resolve_wordshape_sets(skeleton_word, this.wordshape_distribution, this.optionals_weight);
@@ -56,7 +58,12 @@ class Word_Builder {
             }
             adult_word += new_char
         }
-        return new Word(skeleton_word, baby_word, adult_word);
+
+        if (this.escape_mapper.counter != 0) {
+            skeleton_word = this.escape_mapper.restoreEscapedChars(skeleton_word);
+            adult_word = this.escape_mapper.restoreEscapedChars(adult_word);
+        }
+        return new Word(skeleton_word, adult_word);
     }
 }
 

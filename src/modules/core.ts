@@ -43,12 +43,12 @@ function gen_words(
 
         const wordBuilder = new Word_Builder(
             logger,
+            escape_mapper,
             resolver.categories,
             resolver.wordshapes,
             resolver.wordshape_distribution,
             resolver.optionals_weight,
-            resolver.debug,
-            resolver.capitalise_words
+            resolver.debug
         );
 
         const transformer = new Transformer(

@@ -28,6 +28,14 @@ class Escape_Mapper {
     restoreEscapedChars(input: string): string {
       return input.split("").map(c => this.map.has(c) ? this.map.get(c)! : c).join("");
     }
+
+    restorePreserveEscapedChars(input: string): string {
+      return input
+      .split("")
+      .map(c => this.map.has(c) ? "\\" + this.map.get(c) : c)
+      .join("");
+    }
+
 }
 
 export default Escape_Mapper;

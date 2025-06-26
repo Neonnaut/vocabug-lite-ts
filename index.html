@@ -39,13 +39,12 @@
         <img src="img/vocabug_logo.png" alt="Logo of letter V with bug antennae" width="100" height="100" style="float: left;">
         <h1 style="margin: 15px 0 10px 0; padding-top: 10px;">Vocabug-lite</h1>
         <div style="padding-left: 5px;">
-          <b>Version 0.0.0</b><br>
+          <b>Version 0.0.1</b><br>
           <a href="./vocabug-lite_docs.html">Read the documentation here</a>
         </div>
       </div>
 
       <br>
-      <p>DOES NOT WORK YET.</p>
       <p>Vocabug-lite randomly generates vocabulary from a given definition of graphemes, frequencies and word patterns. You can use it to make words for a constructed language, to get an original nickname or password, or just for fun.</p>
 
         <div class="switch-field">
@@ -142,7 +141,7 @@
                 <option value="V">V</option><option value="W">W</option><option value="X">X</option>
                 <option value="Y">Y</option><option value="Z">Z</option>t n k m ch l ꞌ s r d h w b y p g
               </select>
-              <input type="text" name="category-field" spellcheck="false" class="w-full monospace" value="[t:9, tr] n [k:13, kr] m r s [p:12, pr] h w j">
+              <input type="text" name="category-field" autocomplete="off" spellcheck="false" class="w-full monospace" value="[t:9, tr] n [k:13, kr] m r s [p:12, pr] h w j">
 
               <button class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
@@ -163,7 +162,7 @@
                 <option value="V" selected="selected">V</option><option value="W">W</option><option value="X">X</option>
                 <option value="Y">Y</option><option value="Z">Z</option>
               </select>
-              <input type="text" name="category-field" spellcheck="false" class="w-full monospace" value="a i e o u [ee oo aa ii uu]">
+              <input type="text" name="category-field" autocomplete="off" spellcheck="false" class="w-full monospace" value="a i e o u [ee oo aa ii uu]">
 
               <button class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
@@ -182,7 +181,7 @@
                 <option value="V">V</option><option value="W">W</option><option value="X">X</option>
                 <option value="Y">Y</option><option value="Z">Z</option>
               </select>
-              <input type="text" name="category-field" spellcheck="false" class="w-full monospace" value="n r s">
+              <input type="text" name="category-field" autocomplete="off" spellcheck="false" class="w-full monospace" value="n r s">
 
               <button class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
@@ -201,11 +200,35 @@
         <div id="segment-container">
           <div class="flex flex-col gap-2">
             <div class="flex items-center gap-2">
-              <select name="segment-name" disabled >
-                <option value="$S">$S</option>
-                <option value="$W">$W</option>
+              <select name="segment-name"><option value="$A">$A</option><option value="$B">$B</option>
+                <option value="$C">$C</option><option value="$D">$D</option><option value="$E">$E</option>
+                <option value="$F">$F</option><option value="$G">$G</option><option value="$H">$H</option>
+                <option value="$I">$I</option><option value="$J">$J</option><option value="$K">$K</option>
+                <option value="$L">$L</option><option value="$M">$M</option><option value="$N">$N</option>
+                <option value="$O">$O</option><option value="$P">$P</option><option value="$Q">$Q</option>
+                <option value="$R">$R</option><option value="$S" selected>$S</option><option value="$T">$T</option>
+                <option value="$U">$U</option><option value="$V">$V</option><option value="$W">$W</option>
+                <option value="$X">$X</option><option value="$Y">$Y</option><option value="$Z">$Z</option>
               </select>
-              <input name="segment-field" type="text" spellcheck="false" value="CV(F)" class="w-full monospace">
+              <input name="segment-field" type="text" autocomplete="off" spellcheck="false" value="CV(F)" class="w-full monospace">
+
+              <button disabled class="voca-delete"><i class="fa fa-trash"></i></button>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <select name="segment-name"><option value="$A">$A</option><option value="$B">$B</option>
+                <option value="$C">$C</option><option value="$D">$D</option><option value="$E">$E</option>
+                <option value="$F">$F</option><option value="$G">$G</option><option value="$H">$H</option>
+                <option value="$I" selected>$I</option><option value="$J">$J</option><option value="$K">$K</option>
+                <option value="$L">$L</option><option value="$M">$M</option><option value="$N">$N</option>
+                <option value="$O">$O</option><option value="$P">$P</option><option value="$Q">$Q</option>
+                <option value="$R">$R</option><option value="$S">$S</option><option value="$T">$T</option>
+                <option value="$U">$U</option><option value="$V">$V</option><option value="$W">$W</option>
+                <option value="$X">$X</option><option value="$Y">$Y</option><option value="$Z">$Z</option>
+              </select>
+              <input name="segment-field" type="text" autocomplete="off" spellcheck="false" value="(C)V(F)" class="w-full monospace">
 
               <button disabled class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
@@ -214,8 +237,6 @@
 
         <button id="voc-add-segment" class="wide-btn">Add segment</button>
           
-
-
           <h3>Words</h3>
 
           <label for="word-shape-distribution">Default distribution:</label>
@@ -229,37 +250,37 @@
 
           <label for="alphabet">Alphabet:</label><br>
           <div class="flex flex-col gap-2">
-            <input id="alphabet" type="text" spellcheck="false" class="monospace" value="">
+            <input id="alphabet" type="text" autocomplete="off" spellcheck="false" class="monospace" value="">
           </div>
           <br>
 
           
           <label for="word-shapes">Word-shapes:</label><br>
-          <textarea spellcheck="false" id="word-shapes" class="monospace">$S$S $S $S$S$S $S$S$S$S</textarea>
+          <textarea spellcheck="false" id="word-shapes" class="monospace">$I$S, [$S, $I], $I$S$S, $I$S$S$S</textarea>
 
         <h3>Transforms</h3>
 
           <label for="graphemes">Graphemes:</label><br>
           <div class="flex flex-col gap-2">
-            <input id="graphemes" type="text" spellcheck="false" class="monospace" aria-label="Pattern" value="">
+            <input id="graphemes" type="text" autocomplete="off" spellcheck="false" class="monospace" aria-label="Pattern" value="">
           </div>
         <br><br>
           
         <div id="transform-container">
           <div class="flex flex-col gap-2">
             <div class="flex items-center gap-2">
-              <input name="transform-target" spellcheck="false" type="text" value="ji tu ss nn ll" class="w-full monospace">
+              <input name="transform-target" autocomplete="off" spellcheck="false" type="text" value="ji tu" class="w-full monospace">
               <a>&#8594;</a>
-              <input name="transform-after" spellcheck="false" type="text" value="ci cu c nj lj" class="w-full monospace">
+              <input name="transform-after" autocomplete="off" spellcheck="false" type="text" value="ci cu" class="w-full monospace">
               <button class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
           </div>
 
           <div class="flex flex-col gap-2">
             <div class="flex items-center gap-2">
-              <input name="transform-target" spellcheck="false" type="text" value="nn nm np rr sh ss" class="w-full monospace">
+              <input name="transform-target" autocomplete="off" spellcheck="false" type="text" value="nn nm np sh ss" class="w-full monospace">
               <a>&#8594;</a>
-              <input name="transform-after" spellcheck="false" type="text" value="nj b mp d s s" class="w-full monospace">
+              <input name="transform-after" autocomplete="off" spellcheck="false" type="text" value="nj m mp s s" class="w-full monospace">
               <button class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
           </div>

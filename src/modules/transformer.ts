@@ -1,6 +1,4 @@
-// import { Fragment } from './rule.js';
 import Word from './word.js';
-// import { SoundSystem, createText, invalidItemAndWeight } from './wordgen.js';\
 import Logger from './logger';
 
 class Transformer {
@@ -57,9 +55,14 @@ class Transformer {
         const replacements: { index: number; length: number; replacement: string }[] = [];
 
         for (let i = 0; i < target.length; i++) {
-            const rawSearch = target[i];
-            const isDelete = result[i] === "^";
-            const replacement = isDelete ? "" : result[i];
+            let rawSearch = target[i];
+            let isDelete: boolean;
+            if (result[i] === "^") {
+                isDelete = true;
+            } else {
+                isDelete = false;
+            }
+            let replacement = isDelete ? "" : result[i];
 
             if (replacement == "^REJECT") {
                 for (let j = 0; j <= tokens.length - rawSearch.length; j++) {
@@ -73,15 +76,21 @@ class Transformer {
             }
             // Prefix match
             if (rawSearch.startsWith("#")) {
+                // Remove backslash
+                rawSearch = rawSearch.replace(/\\/g, "");
+                replacement = replacement.replace(/\\/g, "");
+
                 const needle = rawSearch.slice(1);
                 const head = tokens.slice(0, needle.length).join("");
                 if (head === needle) {
                     replacements.push({ index: 0, length: needle.length, replacement });
                     applied = true;
                 }
-
             // Suffix match
-            } else if (rawSearch.endsWith("#")) {
+            } else if (rawSearch.endsWith("#") && !rawSearch.endsWith("\\#")) {
+                // Remove backslash
+                rawSearch = rawSearch.replace(/\\/g, "");
+                replacement = replacement.replace(/\\/g, "");
                 const needle = rawSearch.slice(0, -1);
                 const tail = tokens.slice(-needle.length).join("");
                 if (tail === needle) {
@@ -93,10 +102,13 @@ class Transformer {
                     applied = true;
                 }
 
-                // Anywhere match
-                } else {
-                    for (let j = 0; j <= tokens.length - rawSearch.length; j++) {
-                        const window = tokens.slice(j, j + rawSearch.length).join("");
+            // Anywhere match
+            } else {
+                // Remove backslash
+                rawSearch = rawSearch.replace(/\\/g, "");
+                replacement = replacement.replace(/\\/g, "");
+                for (let j = 0; j <= tokens.length - rawSearch.length; j++) {
+                    const window = tokens.slice(j, j + rawSearch.length).join("");
                     if (window === rawSearch) {
                         replacements.push({ index: j, length: rawSearch.length, replacement });
                         applied = true;

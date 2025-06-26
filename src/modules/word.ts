@@ -1,21 +1,20 @@
-import { last } from './utilities'
+import { get_last } from './utilities'
 
 class Word {
     static debug: boolean = false;
-    static capitalise_words: boolean = false;
 
     transformations: string[];
     forms: string[];
     rejected: boolean;
 
-    constructor(skeleton: string, baby: string, adult: string) {
-        this.transformations = ["genesis", "setosis", "categretion"];
-        this.forms = [skeleton, baby, adult];
+    constructor(skeleton: string, adult: string) {
+        this.transformations = [skeleton];
+        this.forms = [adult];
         this.rejected = false; // This may be changed in transforms or when the word is ""
     }
 
-    get_last_form(): string { // Use this when sorting the words
-        let output = last(this.forms);
+    get_last_form(): string { // Gets canonical word. Use this when sorting the words
+        let output = get_last(this.forms);
         if (output == undefined) {
             return "undefined";
         }
@@ -30,12 +29,9 @@ class Word {
             }
             return output;
         }
-        output = last(this.forms);
+        output = get_last(this.forms);
         if (output == undefined) {
             return "undefined";
-        }
-        if (Word.capitalise_words) {
-            output = output.charAt(0).toUpperCase() + output.slice(1);
         }
         return output;
     }

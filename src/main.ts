@@ -323,9 +323,9 @@ $(window).on('load', function () {
         newElement.innerHTML = `
             <div class="flex flex-col gap-2">
                 <div class="flex items-center gap-2">
-                    <input name="transform-target" type="text" spellcheck="false" class="w-full monospace">
+                    <input name="transform-target" type="text" spellcheck="false" autocomplete="off" class="w-full monospace">
                     <a>→</a>
-                    <input name="transform-after" type="text" spellcheck="false" class="w-full monospace">
+                    <input name="transform-after" type="text" spellcheck="false" autocomplete="off" class="w-full monospace">
                     <button class="voca-delete"><i class="fa fa-trash"></i></button>
                 </div>
             </div>
@@ -443,7 +443,6 @@ const makeFile = (): string => {
 const fileToInterface = (file: string): void => {
     let myArray: string[] = file.split("\n");
     let transformMode = false;
-    let has_dollar_s = false;
 
     const categoryContainer = document.getElementById("category-container") as HTMLDivElement;
     categoryContainer.innerHTML = ''; // Clear existing categories
@@ -597,18 +596,6 @@ const fileToInterface = (file: string): void => {
 
                 } else if (hasDollarSign) {
 
-                    if (!has_dollar_s) {
-                        if ('$S' != myName) {
-                            i --;
-                            has_dollar_s = true;
-                            myName = '$S';
-                            field = '';
-                        } else if('$S' == myName) {
-                            has_dollar_s = true;
-                        }
-                    }
-
-
                     // Create main wrapper div
                     const wrapperDiv = document.createElement("div");
                     wrapperDiv.className = "flex flex-col gap-2";
@@ -649,10 +636,6 @@ const fileToInterface = (file: string): void => {
                     const buttonElement = document.createElement("button");
                     buttonElement.className = "voca-delete";
                     buttonElement.innerHTML = '<i class="fa fa-trash"></i>';
-                    if (myName == '$S') {
-                        buttonElement.disabled = true;
-                        selectElement.disabled = true;
-                    }
 
                     // Append all elements
                     innerDiv.appendChild(selectElement);
@@ -729,22 +712,12 @@ function clearFields(): void {
                     }>${String.fromCharCode(65 + i)}</option>`
                 ).join("")}
               </select>
-              <input type="text" name="category-field" spellcheck="false" class="w-full monospace">
+              <input type="text" name="category-field" spellcheck="false" autocomplete="off" class="w-full monospace">
               <button class="voca-delete"><i class="fa fa-trash"></i></button>
             </div>
         </div>`;
 
-    document.getElementById('segment-container')!.innerHTML = `
-        <div class="flex flex-col gap-2">
-            <div class="flex items-center gap-2">
-              <select name="segment-name" disabled>
-                <option value="$S">$S</option>
-                <option value="$W">$W</option>
-              </select>
-              <input name="segment-field" type="text" spellcheck="false" class="w-full monospace">
-              <button disabled class="voca-delete"><i class="fa fa-trash"></i></button>
-            </div>
-        </div>`;
+    document.getElementById('segment-container')!.innerHTML = ``;
 
     (document.getElementById("word-shape-distribution") as HTMLSelectElement).selectedIndex = 2;
     (document.getElementById('word-shapes') as HTMLInputElement).value = "";

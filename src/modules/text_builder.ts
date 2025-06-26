@@ -1,6 +1,4 @@
-// import { Fragment } from './rule.js';
 import Word from './word.js';
-// import { SoundSystem, createText, invalidItemAndWeight } from './wordgen.js';\
 import Logger from './logger.js';
 import collator from './collator.js';
 import { capitalise } from './utilities.js';
@@ -73,23 +71,18 @@ class Text_Builder {
     add_word(word:Word) {
         let do_it:boolean = false;
 
-        if (word.rejected) {
+        if (word.rejected && !Word.debug) {
             this.num_of_rejects ++;
-            this.num_of_duds ++;
-        }
-        if (word.rejected && Word.debug) {
-            do_it = true; // record rejects with debug
-        } 
-        if (this.remove_duplicates){
+            this.num_of_duds ++; // Record num of reject
+        } else if (this.remove_duplicates){
             if (this.words.includes(word.get_last_form())) {
-                this.num_of_duplicates ++;
+                this.num_of_duplicates ++; // A dulicate word
                 this.num_of_duds ++;
             } else {
-                do_it = true;
+                do_it = true; // A unique word
             }
-            
         } else{
-            do_it = true;
+            do_it = true; 
         }
 
         if (do_it) {
@@ -134,12 +127,6 @@ class Text_Builder {
             this.logger.info(`${this.num_of_rejects} words were rejected`)
         }
 
-        if (this.escape_mapper.counter != 0) {
-            for (let i = 0; i < this.words.length; i++) {
-                this.words[i] = this.escape_mapper.restoreEscapedChars(this.words[i]);
-            }
-        }
-
         if (this.sort_words){
             this.words = collator( this.logger, this.words, this.alphabet );
         }
@@ -160,14 +147,21 @@ class Text_Builder {
 
         const result: string[] = [];
 
+        let shouldCapitalise = true;
         for (let i = 0; i < words.length; i++) {
             let word = words[i];
-            if (i === 0) word = capitalise(word);
+
+            if (shouldCapitalise) {
+                word = capitalise(word);
+                shouldCapitalise = false;
+            }
 
             if (i === words.length - 1) {
                 result.push(word); // Hold final punctuation until the end
             } else if (i % 7 === 0 && i !== 0) {
-                result.push(word + this.randomEndPunctuation()); // Full stop midstream
+                const punctuation = this.randomEndPunctuation();
+                result.push(word + punctuation);
+                shouldCapitalise = true; // Capitalize next word
             } else if (i % 6 === 0 && i !== 0) {
                 result.push(word + ','); // Sprinkle commas
             } else {
