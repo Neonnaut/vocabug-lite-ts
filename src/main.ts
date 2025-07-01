@@ -27,7 +27,7 @@ $(window).on('load', function () {
                 sort_words: (document.getElementById('sort-words') as HTMLInputElement)?.checked || false,
                 capitalise_words: (document.getElementById('capitalise-words') as HTMLInputElement)?.checked || false,
                 remove_duplicates: (document.getElementById('remove-duplicates') as HTMLInputElement)?.checked || false,
-                force_words: (document.getElementById('force-words') as HTMLInputElement)?.checked || false,
+                force_words: false,
                 word_divider: (document.getElementById('word-divider') as HTMLInputElement)?.value || ""
             });
         } catch (e) {
@@ -38,14 +38,14 @@ $(window).on('load', function () {
 
     // After generating words 
     w.onmessage = (e: MessageEvent) => {
-        const outputWordsField = document.getElementById('voc-output-words-field') as HTMLDivElement;
+        const outputWordsField = document.getElementById('voc-output-words-field') as HTMLTextAreaElement;
         const outputMessage = document.getElementById('voc-output-message') as HTMLDivElement;
         const filenameInput = document.getElementById('file-name') as HTMLInputElement;
         const generateWordsButton = document.getElementById("generate-words") as HTMLButtonElement;
 
         if (outputWordsField) {
             // Transfer words to the output
-            outputWordsField.innerHTML = e.data.words;
+            outputWordsField.value = e.data.words;
             outputWordsField.focus();
         }
 
@@ -168,36 +168,6 @@ $(window).on('load', function () {
         URL.revokeObjectURL(link.href);
 
         localStorage.setItem('vocabug-lite', JSON.stringify([fileContent, filename]));
-    });
-
-    // Show keyboard toggle
-    document.getElementById("show-keyboard")?.addEventListener("click", () => {
-        const keyboardTable = document.getElementById("voc-keyboard-table") as HTMLDivElement;
-        const checkbox = document.getElementById('show-keyboard') as HTMLInputElement;
-        
-        if (keyboardTable && checkbox) {
-            keyboardTable.style.display = checkbox.checked ? "block" : "none";
-        }
-    });
-
-    // IPA buttons
-    document.querySelectorAll(".ipa-button").forEach((button) => {
-        button.addEventListener("mousedown", (e) => {
-            e.preventDefault();
-
-            const activeElement = document.activeElement as HTMLInputElement | HTMLTextAreaElement;
-            if (activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA")) {
-                const start = activeElement.selectionStart ?? 0;
-                const end = activeElement.selectionEnd ?? 0;
-                const beforeText = activeElement.value.substring(0, start);
-                const afterText = activeElement.value.substring(end);
-                const charToInsert = (button as HTMLElement).getAttribute("value") || "";
-
-                activeElement.value = beforeText + charToInsert + afterText;
-                activeElement.selectionStart = activeElement.selectionEnd = start + charToInsert.length;
-                activeElement.focus();
-            }
-        });
     });
 
     // Delete button
@@ -516,10 +486,12 @@ const fileToInterface = (file: string): void => {
                 let theSelected: string = "flat";
                 const value = line.substring(22).trim().toLowerCase();
 
-                if (value === "gusein-zade") {
+                if (value.startsWith('g')) {
                     theSelected = "gusein-zade";
-                } else if (value === "zipfian") {
+                } else if (value.startsWith('z')) {
                     theSelected = "zipfian";
+                } else if (value.startsWith('s')) {
+                    theSelected = "shallow";
                 }
 
                 const categoryDistribution = document.getElementById('category-distribution') as HTMLSelectElement | null;
@@ -542,10 +514,12 @@ const fileToInterface = (file: string): void => {
                 let theSelected = "flat";
                 const value = line.substring(23).trim().toLowerCase();
 
-                if (value === "gusein-zade") {
+                if (value.startsWith('g')) {
                     theSelected = "gusein-zade";
-                } else if (value === "zipfian") {
+                } else if (value.startsWith('z')) {
                     theSelected = "zipfian";
+                } else if (value.startsWith('s')) {
+                    theSelected = "shallow";
                 }
 
                 const options = document.getElementById('word-shape-distribution') as HTMLSelectElement;
@@ -730,7 +704,7 @@ function clearFields(): void {
 
 function clearResults(): void {
     (document.getElementById('voc-output-message') as HTMLInputElement).value = "";
-    document.getElementById('voc-output-words-field')!.innerHTML = "";
+    (document.getElementById('voc-output-words-field') as HTMLInputElement).value = "";
 }
 
 function setFilename(filename: string): void {

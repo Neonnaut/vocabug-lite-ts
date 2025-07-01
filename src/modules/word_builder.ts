@@ -38,8 +38,6 @@ class Word_Builder {
             throw new Error('A word was undefined')
         }
 
-
-
         // baby word looks like `CVCVF!`
         const baby_word:string = resolve_wordshape_sets(skeleton_word, this.wordshape_distribution, this.optionals_weight);
 
@@ -48,7 +46,7 @@ class Word_Builder {
         for (let i = 0; i < baby_word.length; i++) { // going through each char of baby
             let new_char:string = baby_word[i];
             if (!new_char){
-                throw new Error("This should not have happened")
+                throw new Error("Undefined char of word")
             }
             for (const [category_key, category_field] of this.categories) { //going through C = [[a, b, c], [1, 2, 3]]
                 if (category_key == new_char) {
@@ -59,10 +57,13 @@ class Word_Builder {
             adult_word += new_char
         }
 
+        adult_word = adult_word.replace(/\^/g, ""); // Remove caret from word
         if (this.escape_mapper.counter != 0) {
             skeleton_word = this.escape_mapper.restoreEscapedChars(skeleton_word);
             adult_word = this.escape_mapper.restoreEscapedChars(adult_word);
         }
+        
+
         return new Word(skeleton_word, adult_word);
     }
 }
