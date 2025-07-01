@@ -2,7 +2,7 @@ import MyWorker from './worker?worker';
 
 const w = new MyWorker();
 
-$(window).on('load', function () {
+window.addEventListener("load", () => {
     // On load up load last Definition
     if (localStorage.getItem('vocabug-lite')) {
         const gotLocalStorage = JSON.parse(localStorage.getItem('vocabug-lite') || '[]') as [string, string];
@@ -46,7 +46,7 @@ $(window).on('load', function () {
         if (outputWordsField) {
             // Transfer words to the output
             outputWordsField.value = e.data.words;
-            outputWordsField.focus();
+            // outputWordsField.focus();
         }
 
         const filename = filenameInput?.value || "";
@@ -170,13 +170,19 @@ $(window).on('load', function () {
         localStorage.setItem('vocabug-lite', JSON.stringify([fileContent, filename]));
     });
 
-    // Delete button
-    $(document).on("click", ".voca-delete", function () {
-        const currentDiv = $(this).closest("div"); // Find the closest parent div
-        const parentDiv = currentDiv.parent(); // Get the next parent div
+    // Delete button - vanilla TypeScript version
+    document.addEventListener("click", (event: MouseEvent) => {
+        const target = event.target as HTMLElement;
 
-        currentDiv.remove(); // Remove the current div
-        parentDiv.remove(); // Remove the parent div
+        // Check if the clicked element or any of its parents has the 'voca-delete' class
+        const deleteButton = target.closest(".voca-delete");
+        if (deleteButton) {
+            const currentDiv = deleteButton.closest("div");       // Find the closest parent div
+            const parentDiv = currentDiv?.parentElement;          // Get the next parent div
+
+            currentDiv?.remove();  // Remove the current div
+            parentDiv?.remove();   // Remove the parent div
+        }
     });
 
     // Add category button
@@ -215,6 +221,7 @@ $(window).on('load', function () {
         const inputElement = document.createElement("input");
         inputElement.type = "text";
         inputElement.spellcheck = false;
+        inputElement.autocomplete = "off";
         inputElement.className = "w-full monospace";
         inputElement.name = "category-field";
 
@@ -267,6 +274,7 @@ $(window).on('load', function () {
         const inputElement = document.createElement("input");
         inputElement.type = "text";
         inputElement.spellcheck = false;
+        inputElement.autocomplete = "off";
         inputElement.className = "w-full monospace";
         inputElement.name = "segment-field";
 
@@ -601,7 +609,8 @@ const fileToInterface = (file: string): void => {
                     // Create input field
                     const inputElement = document.createElement("input");
                     inputElement.type = "text";
-                    inputElement.spellcheck = false
+                    inputElement.spellcheck = false;
+                    inputElement.autocomplete = "off";
                     inputElement.className = "w-full monospace";
                     inputElement.name = "segment-field"
                     inputElement.value = field;
@@ -650,7 +659,8 @@ const fileToInterface = (file: string): void => {
                     // Create input field
                     const inputElement = document.createElement("input");
                     inputElement.type = "text";
-                    inputElement.spellcheck = false
+                    inputElement.spellcheck = false;
+                    inputElement.autocomplete = "off";
                     inputElement.className = "w-full monospace";
                     inputElement.name = "category-field"
                     inputElement.value = field;

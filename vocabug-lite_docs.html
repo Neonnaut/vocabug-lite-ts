@@ -233,7 +233,7 @@
         <li>A <code class="example">flat</code> distribution treats all items equally. This is not to say the items will be evenly chosen -- items are still being randomly chosen on a generation, they just have the same weight</li>
       </ul>
 
-      <img src="img/distribution.png" alt="Distribution graph" width="100%" height="auto">
+      <img src="img/distribution.png" alt="Distribution graph" style="width: 100%;">
 
       <h2 id="vocCategoryWeights"><a class="head-num">5</a>Assigning weights</h2>
       <p>If you want to set your own frequency for graphemes in a <a href="#vocCategories">category</a> or category-set, items in a <a href="#vocPickOne">pick-one-set</a>, or <a href="#vocOptional">optional-set</a>, or <a href="#vocWords">word-shapes</a> in the <code class="example">words:</code> directive, you can use a colon <code class="example">:</code> to specify the weight for each item, like so:</p>
@@ -303,7 +303,7 @@ words: t[V, x]</pre>
       <h2 id="vocAlphabetisation"><a class="head-num">8</a>Alphabetisation</h2>
       <p>The alphabet directive gives Vocabug a custom alphabetisation order for words, when the sort words checkbox is selected.</p>
       <pre class="example">alphabet: a, b, c, e, f, h, i, k, l, m, n, o, p, p', r, s, t, t', y</pre>
-      <p>This would order generated words like so: <code class="example">cat chat cumin frog tray t'a</code></p>
+      <p>This would order generated words like so: <code class="example">cat chat cumin frog tray t'a yanny</code></p>
 
       <h2 id="nascTransform"><a class="head-num">9</a>Transform</h2>
       <p>Once words are generated, you might want to modify them to prevent certain sequences, outright reject certain words, or simulate historical sound changes.</p>
