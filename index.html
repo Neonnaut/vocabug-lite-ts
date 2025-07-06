@@ -101,6 +101,15 @@
           <input type="submit" id="load-file" value="Load file">
           <input type="submit" id="save-file" value="Save file">
           <br>
+          <details class="dropdown-group">
+            <summary class="dropdown-btn">Examples</summary>
+            <a class="voc-example" value="basic">Default</a>
+            <a class="voc-example" value="tonal">Tonal</a>
+            <a class="voc-example" value="romance">Romance-like</a><br>
+            <a class="voc-example" value="japanese">Japanese-like</a>
+            
+            <a class="voc-example" value="australian">Australian-like</a>
+          </details>
 
         </fieldset>
         <br style="clear: left;">
@@ -257,6 +266,15 @@
         </div>
 
         <button id="voc-add-transform" type="button" class="wide-btn">Add transform</button>
+
+        <h3>cluster-field</h3>
+        <div id="cluster-container">
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <textarea></textarea>
+            </div>
+          </div>
+        </div>
 
         <br><br>
         <label for="graphemes">Graphemes:</label><br>

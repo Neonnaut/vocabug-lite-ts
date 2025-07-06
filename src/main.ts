@@ -1,5 +1,7 @@
 import MyWorker from './worker?worker';
 
+import { get_example } from './examples.ts';
+
 const w = new MyWorker();
 
 window.addEventListener("load", () => {
@@ -311,6 +313,22 @@ window.addEventListener("load", () => {
 
         container.appendChild(newElement);
     });
+
+    // Examples buttons
+    document.querySelectorAll(".voc-example").forEach((button) => {
+        button.addEventListener("click", () => {
+            const choice = (button as HTMLElement).getAttribute("value") || '?';
+            const fileContent = get_example(choice);
+            const confirmed = window.confirm("Replace editor text with example?");
+            
+            if (confirmed) {
+                fileToInterface(fileContent);
+            }
+
+            setFilename('');
+            clearResults();
+        });
+    });   
 });
 
 
@@ -334,25 +352,24 @@ function validateString(str: string): [boolean, boolean] {
     return [regex.test(str), hasDollarSign];
 }
 
-function divideString(divider: string, input: string): [string, string, boolean, boolean, boolean] {
-    if (input === "" || divider === "") {
-        return ['', '', false, false, false]; // Handle invalid inputs
-    }
+function divideString(divider: string[], input: string): [string, string, boolean, boolean, boolean] {
+  if (input === "" || divider.length === 0) {
+    return ['', '', false, false, false];
+  }
 
-    const divided = input.split(divider);
-    if (divided.length !== 2) {
-        return ['', '', false, false, false]; // Ensure division results in exactly two parts
-    }
+  // Escape regex meta-characters in each divider
+  const escaped = divider.map(d => d.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const pattern = new RegExp(`(${escaped.join("|")})`, "g"); // no word boundaries
 
-    const word = divided[0].trim();
-    const field = divided[1].trim();
-    if (word === "" || field === "") {
-        return ['', '', false, false, false]; // Handle empty parts
-    }
+  const parts = input.split(pattern).filter(part => !divider.includes(part)).map(part => part.trim());
 
-    const [isValid, hasDollarSign] = validateString(word);
+  if (parts.length !== 2 || parts.some(p => p === "")) {
+    return ['', '', false, false, false];
+  }
 
-    return [word, field, true, isValid, hasDollarSign]; // Return word, field, valid, isCapital, hasDollarSign
+  const [word, field] = parts;
+  const [isValid, hasDollarSign] = validateString(word);
+  return [word, field, true, isValid, hasDollarSign];
 }
 
 
@@ -411,9 +428,9 @@ const makeFile = (): string => {
     if (wordshapeDistribution) file += `wordshape-distribution: ${wordshapeDistribution}\n`;
     if (optionalsWeight) file += `optionals-weight: ${optionalsWeight}\n`;
     if (alphabet) file += `alphabet: ${alphabet}\n`;
-    if (wordshapes) file += `words: ${wordshapes}\n`;
+    if (wordshapes) file += `BEGIN words: ${wordshapes}\nEND\n`;
     if (graphemes) file += `graphemes: ${graphemes}\n`;
-    if (transforms.trim()) file += `BEGIN transform:\n${transforms.trim()}\nEND\n`;
+    if (transforms.trim()) file += `BEGIN transform:\n${transforms.trim()}\nEND\n\n`;
 
     return file;
 };
@@ -439,7 +456,7 @@ const fileToInterface = (file: string): void => {
         if (transformMode) {
             
             // Handle transform lines
-            const [myName, field, valid, _isCapital, _hasDollarSign] = divideString('→', line);
+            const [myName, field, valid, _isCapital, _hasDollarSign] = divideString(['→','->','>'], line);
 
             if (!valid) {
                 return; // Use return instead of continue for better function control
@@ -547,6 +564,25 @@ const fileToInterface = (file: string): void => {
                     alphabet.value = value;
                 }
 
+            } else if (line.startsWith("BEGIN words:")) {
+                let wordshape_string = '';
+                line = line.substring(12).trim();
+
+                while (line && !line.startsWith("END")) {
+                    wordshape_string += line + "\n";
+                    i++;
+                    if (i < myArray.length) {
+                        line = myArray[i].trim();
+                    } else {
+                        break; // Prevent out of bounds error
+                    }
+                }
+                const wordShapes = document.getElementById('word-shapes') as HTMLInputElement | null;
+
+                if (wordShapes) {
+                    wordShapes.value = wordshape_string;
+                }
+
             } else if (line.startsWith("words:")) {
                 const value = line.substring(6).trim();
                 const wordShapes = document.getElementById('word-shapes') as HTMLInputElement | null;
@@ -571,7 +607,7 @@ const fileToInterface = (file: string): void => {
             } else {
 
                 // Return word, field, valid, isCapital, hasDollarSign
-                let [myName, field, valid, isCapital, hasDollarSign] = divideString('=', line);
+                let [myName, field, valid, isCapital, hasDollarSign] = divideString(['='], line);
 
 
                 if ( !valid || !isCapital ) {
