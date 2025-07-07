@@ -420,6 +420,10 @@ const makeFile = (): string => {
         }
     });
 
+    // Cluster-fields
+    const clusterFields = (document.getElementById("cluster-fields") as HTMLTextAreaElement).value;
+
+
     // assembling file content
     let file = "";
     if (categoryDistribution) file += `category-distribution: ${categoryDistribution}\n`;
@@ -430,7 +434,17 @@ const makeFile = (): string => {
     if (alphabet) file += `alphabet: ${alphabet}\n`;
     if (wordshapes) file += `BEGIN words: ${wordshapes}\nEND\n`;
     if (graphemes) file += `graphemes: ${graphemes}\n`;
-    if (transforms.trim()) file += `BEGIN transform:\n${transforms.trim()}\nEND\n\n`;
+
+    if (transforms.trim() || clusterFields.trim()) {
+        file += `BEGIN transform:\n`;
+        
+        if (transforms.trim()) file += `${transforms.trim()}\n`;
+
+        if (clusterFields.trim()) file += `${clusterFields.trim()}\n`;
+
+        file += `\nEND\n\n`;
+    }
+    
 
     return file;
 };
@@ -448,18 +462,44 @@ const fileToInterface = (file: string): void => {
     const transformContainer = document.getElementById("transform-container") as HTMLDivElement;
     transformContainer.innerHTML = ''; // Clear existing transforms
 
+    const clusterFields = document.getElementById("cluster-fields") as HTMLTextAreaElement;
+    clusterFields.value = ''; // Clear existing cluster fields
+
+    const wordShapes = document.getElementById('word-shapes') as HTMLTextAreaElement;
+    wordShapes.value = ''; // Clear existing word shapes
+
+    wordShapes.dispatchEvent(new Event("input"));
+
+    const alphabet = document.getElementById('alphabet') as HTMLInputElement;
+    alphabet.value = ''; // Clear existing alphabet 
+
+    const graphemes = document.getElementById('graphemes') as HTMLInputElement;
+    graphemes.value = ''; // Clear existing graphemes   
+
     for (let i = 0; i < myArray.length; i++) {
         let line = myArray[i].trim();
         line = line.replace(/;.*/u, '').trim(); // Remove comments
         if (line === '') continue;
 
         if (transformMode) {
+
+            if (line.trim().startsWith("%")) {
+                let clusterString = '';
+                while ( i < myArray.length ) {
+                    clusterString += myArray[i].trim() + "\n";
+                    if (myArray[i].trim() == "") {break} // If blank line break
+                    i++;
+                }
+                const clusterFields = document.getElementById("cluster-fields") as HTMLTextAreaElement;
+                clusterFields.value += clusterString;
+
+            }
             
             // Handle transform lines
             const [myName, field, valid, _isCapital, _hasDollarSign] = divideString(['→','->','>'], line);
 
             if (!valid) {
-                return; // Use return instead of continue for better function control
+                continue; 
             }
 
             // Create main wrapper div
@@ -577,15 +617,14 @@ const fileToInterface = (file: string): void => {
                         break; // Prevent out of bounds error
                     }
                 }
-                const wordShapes = document.getElementById('word-shapes') as HTMLInputElement | null;
 
                 if (wordShapes) {
                     wordShapes.value = wordshape_string;
                 }
-
+                
             } else if (line.startsWith("words:")) {
                 const value = line.substring(6).trim();
-                const wordShapes = document.getElementById('word-shapes') as HTMLInputElement | null;
+                const wordShapes = document.getElementById('word-shapes') as HTMLTextAreaElement | null;
 
                 if (wordShapes && value) {
                     wordShapes.value = value;
@@ -716,11 +755,22 @@ const fileToInterface = (file: string): void => {
             }
         }
     }
+    resizeFlexBox(clusterFields);
+    resizeFlexBox(wordShapes);
+}
+
+function resizeFlexBox(textarea: HTMLTextAreaElement): void {
+  if (textarea.value.trim() === "") {
+    textarea.style.height = "calc(1.2em * 2)";
+  } else {
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }
 }
 
 
 function clearFields(): void {
-    (document.getElementById("category-distribution") as HTMLSelectElement).selectedIndex = 1;
+    (document.getElementById("category-distribution") as HTMLSelectElement).selectedIndex = 2;
 
     document.getElementById('category-container')!.innerHTML = `
         <div class="flex flex-col gap-2">
@@ -739,13 +789,14 @@ function clearFields(): void {
 
     document.getElementById('segment-container')!.innerHTML = ``;
 
-    (document.getElementById("word-shape-distribution") as HTMLSelectElement).selectedIndex = 2;
-    (document.getElementById('word-shapes') as HTMLInputElement).value = "";
+    (document.getElementById("word-shape-distribution") as HTMLSelectElement).selectedIndex = 3;
+    (document.getElementById('word-shapes') as HTMLTextAreaElement).value = "";
     (document.getElementById('optionals-weight') as HTMLInputElement).value = "10";
     (document.getElementById('alphabet') as HTMLInputElement).value = "";
     (document.getElementById('graphemes') as HTMLInputElement).value = "";
     document.getElementById('voc-output-message')!.innerHTML = "";
     document.getElementById('transform-container')!.innerHTML = "";
+    (document.getElementById('clusterFields') as HTMLTextAreaElement).value = "";
 }
 
 function clearResults(): void {

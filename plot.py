@@ -22,17 +22,13 @@ flat = [0.06666666666666667] * 15
 
 shallow = [0.13901743348074713, 0.09893490636234296, 0.08191613674491292, 0.07224552342018788, 0.06600031483456682, 0.061676836798982726, 0.0585604331013509, 0.05626328974769393, 0.054555004767525964, 0.05328938337506795, 0.05236892669848462, 0.051726048083671816, 0.05131244472292722, 0.05109274965319489, 0.05104056820834216] 
 
+yule = [0.2373546608311463, 0.13632445422380848, 0.09856001488643543, 0.0782978381563787, 0.06549705316695979, 0.05660786348426582, 0.050040234033426195, 0.04497029894502814, 0.040926419984332864, 0.037618178615020016, 0.03485648710572694, 0.03251267983213644, 0.03049601428182863, 0.028740567258931655, 0.02719723519457477]
+
 plt.figure(figsize=(10, 6))
 plt.plot(x, flat, label='Flat', linewidth=2, color='purple', linestyle=':')  # dotted
 plt.plot(x, gusein_zade, label='Gusein-Zade', linewidth=2, color='green', linestyle='--')     # solid
 plt.plot(x, zipfian, label='Zipfian', linewidth=2, color='blue', linestyle='-')
 plt.plot(x, shallow, label='Shallow', linewidth=2, color='darkred', linestyle='-')     # dashed
-
-
-
-plt.xscale('log')  # keep log scale for x-axis
-plt.xticks(x, labels=[str(i) for i in x])
-plt.xlim(left=1)
 
 plt.title('Distributions', fontsize=14)
 plt.xlabel('Ranked Items (log scale)', fontsize=12)

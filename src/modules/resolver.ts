@@ -116,7 +116,7 @@ class Resolver {
             let line_value = '';
 
             line = this.escape_mapper.escapeBackslashSpace(line);
-            //line = line.replace(/(?<!\\);.*/u, '').trim(); // Remove comment unless escaped with backslash
+            line = line.replace(/(?<!\\);.*/u, '').trim(); // Remove comment unless escaped with backslash
 
             if (line === '') { continue; } // Blank line !!
 
@@ -136,10 +136,10 @@ class Resolver {
                 let [target, result, valid] = GetTransform(line_value);
 
                 if ( !valid ) {
-                    this.logger.warn(`Malformed transform at line ${this.file_line_num + 1} -- expected \`old → new\` or a clusterfield`);
+                    this.logger.warn(`Malformed transform -- expected \`old → new\` or a clusterfield`);
                     continue;
                 } else if ( target.length != result.length ){
-                    this.logger.warn(`Malformed transform at line ${this.file_line_num + 1} -- expected an equal amount of concurrent-set targets to concurrent-set results`);
+                    this.logger.warn(`Malformed transform -- expected an equal amount of concurrent-set targets to concurrent-set results`);
                     continue;
                 }
 
@@ -237,7 +237,7 @@ class Resolver {
                 }
                 if (hasDollarSign) {
                     // SEGMENTS !!!
-                    if (!validateSegment(field)) { throw new Error(`A segment at line ${this.file_line_num + 1} had separators outside any sets -- expected separators for segments to appear only in sets`)}
+                    if (!validateSegment(field)) { throw new Error(`A segment had separators outside any sets -- expected separators for segments to appear only in sets`)}
                     this.add_segment(myName, field);
                 } else {
                     // CATEGORIES !!!
@@ -418,9 +418,9 @@ class Resolver {
             row.shift();
 
             if (row.length > row_length) {
-                throw new Error(`Clusterfield row too long at line number ${this.file_line_num + 1}`);
+                throw new Error(`Clusterfield row too long`);
             } else if (row.length < row_length) {
-                throw new Error(`Clusterfield row too short at line number ${this.file_line_num + 1}`);
+                throw new Error(`Clusterfield row too short`);
             }
 
             for (let i = 0; i < row_length; ++i) {

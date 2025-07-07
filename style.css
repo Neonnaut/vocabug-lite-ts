@@ -513,6 +513,15 @@ textarea {
   box-sizing: border-box;
   width: 100%;
 }
+.flex-wrapper {
+  padding: 1em;
+}
+.flex-box {
+  padding: 4px 5px; /* No internal padding */
+  resize: none;
+  overflow: hidden;
+}
+
 .fake-textbox {
   -moz-appearance: textfield-multiline;
   -webkit-appearance: textarea;

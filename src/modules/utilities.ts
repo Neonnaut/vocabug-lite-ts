@@ -278,8 +278,8 @@ function weightedRandomPick(items:string[], weights:number[]): string {
 
     return '';
 }
-
 function guseinzade_distribution(no_of_items: number): number[] {
+    if (no_of_items == 1) { return [1]; } // special case of 1 item
     const jitter = (val: number, percent: number = 7): number =>
         val * (1 + (percent * (Math.random() - 0.5)) / 100);
     const weights: number[] = [];
@@ -288,8 +288,8 @@ function guseinzade_distribution(no_of_items: number): number[] {
     }
     return weights;
 }
-
 function zipfian_distribution(no_of_items: number): number[] {
+    if (no_of_items == 1) { return [1]; } // special case of 1 item
     const jitter = (val: number, percent: number = 2): number =>
         val * (1 + (percent * (Math.random() - 0.5)) / 100);
     const weights: number[] = [];
@@ -299,6 +299,7 @@ function zipfian_distribution(no_of_items: number): number[] {
     return weights;
 }
 function shallow_distribution(no_of_items: number): number[] {
+    if (no_of_items == 1) { return [1]; } // special case of 1 item, avoids 0/0 error
     const weights: number[] = [];
 
     for (let i = 0; i < no_of_items; ++i) {
@@ -310,6 +311,23 @@ function shallow_distribution(no_of_items: number): number[] {
     }
     return weights
 }
+
+/*
+function normalize(weights: number[]): number[] {
+    const total = weights.reduce((sum, w) => sum + w, 0);
+    return total === 0 ? weights.map(() => 0) : weights.map(w => w / total);
+}
+
+
+function yule_distribution(no_of_items: number, alpha: number): number[] {
+    if (no_of_items === 1) { return [1]; }
+    const weights: number[] = [];
+    for (let i = 1; i <= no_of_items; ++i) {
+        weights.push(1 / Math.pow(i, alpha)); // Zipf-like decay
+    }
+    return weights;
+}
+*/
 
 function flat_distribution(no_of_items: number): number[] {
     const weights: number[] = [];
@@ -496,6 +514,12 @@ function parse_distribution(value:string):string {
   }
   return "flat";
 }
+
+console.log("Flat:", flat_distribution(1));
+console.log("Gusein-Zade:", guseinzade_distribution(1));
+console.log("Zipfian:", zipfian_distribution(1));
+console.log("Shallow:", shallow_distribution(1));
+
 
 
 

@@ -1,6 +1,6 @@
 # Vocabug-lite
 
-Version 0.0.1
+Version 0.0.4
 
 This is a word generator designed to be a successor to the Williams' [Lexifer][1] and to the legendary [Awkwords][2]. It is built using TypeScript and builds using Vite as a browser app with a complete interface. As the name implies, Vocabug-lite, is the 'lite' version of the full Vocabug, which is yet to be released.
 

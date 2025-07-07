@@ -38,7 +38,7 @@
         <img src="img/vocabug_logo.png" alt="Logo of letter V with bug antennae" width="100" height="100" style="float: left;">
 
         <h1 style="margin-bottom: 10px;">Vocabug-lite<br>documentation</h1>
-        <b>Version 0.0.3</b>
+        <b>Version 0.0.4</b>
       </div>
       <br>
 
@@ -95,24 +95,25 @@
 
         <li><a href="#vocAlphabetisation">Alphabetisation</a></li>
 
-        <li><a href="#nascTransform">Transform</a>
+        <li><a href="#nescaTransform">Transform</a>
         <ol class="nice-list">
           <li><a href="#vocGraphs">Defining graphemes</a></li>
         </ol></li>
 
-        <li><a href="#nascTheChange">The change</a>
+        <li><a href="#nescaTheChange">The change</a>
         <ol class="nice-list">
-          <li><a href="#nascConcurrentSet">Concurrent-set</a></li>
-          <li><a href="#nascWordBoundary">Word boundary</a></li>
-          <li><a href="#nascReject">Reject</a></li>
-          <li><a href="#nascDeletion">Deletion</a></li>
+          <li><a href="#nescaConcurrentChange">Concurrent change</a></li>
+          <li><a href="#nescaWordBoundary">Word boundary</a></li>
+          <li><a href="#nescaReject">Reject</a></li>
+          <li><a href="#nescaDeletion">Deletion</a></li>
         </ol>
         </li>
+        <li><a href="#nescaClusterfield">Cluster-field</a></li>
 
       </ol>
 
       <h2 id="vocAbout"><a class="head-num">1</a>About Vocabug</h2>
-      <p>This is the complete documentation for <a href="./vocabug-lite.html">Vocabug-lite, version 0.0.3</a></p>
+      <p>This is the complete documentation for <a href="./vocabug-lite.html">Vocabug-lite, version 0.0.4</a></p>
 
       <p>This is a word generator designed to be a successor to the Williams' <a href="https://github.com/bbrk24/lexifer-ts">Lexifer</a> and to the legendary <a href="https://github.com/nai888/awkwords">Awkwords</a>. You can find it's repository <a href="https://github.com/Neonnaut/vocabug-lite-ts">here</a>. As the name implies, Vocabug-lite, is the 'lite' version of the full Vocabug, which is yet to be released.</p>
 
@@ -199,7 +200,7 @@
       </table>
       
       <h4 id="vocEscapeTransform"><a class="head-num">3.2.2</a>Transform character escape</h4>
-      <p>These are the characters you must escape if you want to use them in the <a href="#nascTransform">transform</a> block:</p>
+      <p>These are the characters you must escape if you want to use them in the <a href="#nescaTransform">transform</a> block:</p>
       <table class="styled-table">
         <thead>
           <tr>
@@ -211,11 +212,11 @@
         <tbody>
           <tr>
             <td><code class="example">#</code></td>
-            <td><a href="#nascWordBoundary">Word boundary</a></td>
+            <td><a href="#nescaWordBoundary">Word boundary</a></td>
           </tr>
           <tr>
             <td><code class="example">^</code></td>
-            <td><a href="#nascInsertionAndDeletion">Deletion</a> when in <code class="example">RESULT</code></td>
+            <td><a href="#nescaInsertionAndDeletion">Deletion</a> when in <code class="example">RESULT</code></td>
           </tr>
           
           <tr>
@@ -320,17 +321,17 @@ words: $S:2 y</pre>
       <pre class="example">alphabet: a, b, c, e, f, h, i, k, l, m, n, o, p, p', r, s, t, t', y</pre>
       <p>This would order generated words like so: <code class="example">cat chat cumin frog tray t'a yanny</code></p>
 
-      <h2 id="nascTransform"><a class="head-num">9</a>Transform</h2>
+      <h2 id="nescaTransform"><a class="head-num">9</a>Transform</h2>
       <p>Once words are generated, you might want to modify them to prevent certain sequences, outright reject certain words, or simulate historical sound changes.</p>
 
       <p>When this document uses examples to explain transforms, the last comment (comments follow a semicolon) shows an example word transforming. For example <code class="example">; amda ==> ampa</code> means the rule will transform the word <code class="example">amda</code> into <code class="example">ampa</code></p>
 
       <h3 id="vocGraphs"><a class="head-num">9.1</a>Defining graphemes</h3>
-      <p>The <code class="example">graphemes:</code> directive tells Vocabug which (multi)graphs, including character + combining diacritics, are to be treated as grapheme units when using <a href="#nascTransform">transformations</a>.</p>
+      <p>The <code class="example">graphemes:</code> directive tells Vocabug which (multi)graphs, including character + combining diacritics, are to be treated as grapheme units when using <a href="#nescaTransform">transformations</a>.</p>
       <pre class="example">graphemes: a, b, c, ch, e, f, h, i, k, l, m, n, o, p, p', r, s, t, t', y</pre>
       <p>In the above example, we defined <code class="example">ch</code> as a grapheme. This would stop a rule such as <code class="example">c -> g</code> changing the word <code class="example">chat</code> into <code class="example">ghat</code>, but it will make <code class="example">cobra</code> change into <code class="example">gobra</code>.</p>
 
-      <h2 id="nascTheChange"><a class="head-num">10</a>The change</h2>
+      <h2 id="nescaTheChange"><a class="head-num">10</a>The change</h2>
       <p>In Vocabug-<i>lite</i> there is just one field to a transform, the <code class="example">CHANGE</code>. In Vocabug-<i>lite</i> they are always unconditional.</p>
 
       <p>The format of the change can be expressed as <code class="example">TARGET -> RESULT</code>.</p>
@@ -343,27 +344,38 @@ words: $S:2 y</pre>
       <pre class="example">; Replace every /o/ with /x/<br>  o -> x<br>; bodido ==> bxdidx</pre>
       <p>In this rule, we see every instance of <code class="example">o</code> become <code class="example">x</code>.</p>
 
-      <h3 id="nascConcurrentSet"><a class="head-num">10.1</a>Concurrent set</h3>
-      <p>A concurrent set in a change is achieved by listing multiple graphemes in <code class="example">TARGET</code> separated by commas in square brackets, and listing the same amount of resultant graphemes in <code class="example">RESULT</code> separated by commas or spaces. Changes in a concurrent change execute at the same time:</p>
+      <h3 id="nescaConcurrentChange"><a class="head-num">10.1</a>Concurrent change</h3>
+      <p>A concurrent change in a change is achieved by listing multiple graphemes in <code class="example">TARGET</code> separated by commas in square brackets, and listing the same amount of resultant graphemes in <code class="example">RESULT</code> separated by commas or spaces. Changes in a concurrent change execute at the same time:</p>
       <pre class="example">; Switch /o/ and /e/ around<br>  o, a -> a, o<br>; boda ==> bado</pre>
       <p>Notice that the above example is different to the example below:</p>
       <pre class="example">  o -> a<br>  a -> o<br>; boda ==> bodo</pre>
       <p>where each change is on its own line. We can see <code class="example">o</code> merge with <code class="example">a</code>, then <code class="example">a</code> becomes <code class="example">o</code>.</p>
       
-      <h3 id="nascWordBoundary"><a class="head-num">10.2</a>Word boundary</h3>
+      <h3 id="nescaWordBoundary"><a class="head-num">10.2</a>Word boundary</h3>
       <p><code class="example">#</code> matches to word boundaries in <code class="example">RESULT</code>. Either the beginning of the word if it is at the beginning, or the end of the word if it is at the end.</p>
       <pre class="example">  o# -> x<br>; opo ==> opx</pre>
 
-      <h3 id="nascReject"><a class="head-num">10.3</a>Reject</h3>
+      <h3 id="nescaReject"><a class="head-num">10.3</a>Reject</h3>
       <p>To remove, or in other words, reject a word, you use the <code class="example">^REJECT</code> keyword in <code class="example">RESULT</code>, by itself:</p>
       <pre class="example">a, bi -> x, ^REJECT</pre>
       <p>In the above example, any word that contains <code class="example">bi</code> will be rejected.</p>
 
-      <h3 id="nascDeletion"><a class="head-num">10.4</a>Deletion</h3>
+      <h3 id="nescaDeletion"><a class="head-num">10.4</a>Deletion</h3>
       <p>Deletion happens when <code class="example">^</code> is present in <code class="example">RESULT</code></p>
       <pre class="example">; delete every /b/
   b -> ^
 ; bubda ==> uda</pre>
+
+      <h2 id="nescaClusterfield"><a class="head-num">11</a>Cluster-field</h2>
+      <p>Cluster-fields are a way to target and change sequences of graphemes. They are laid out like tables, and start with <code class="example">%</code>. For example:</p>
+      <pre class="example">% a  i  u
+a +  +  o
+i -  +  uu
+u -  -  +</pre>
+      <p>The first grapheme is the row, and the second grapheme is the column. In this example, <code class="example">au</code> becomes <i>o</i> and <code class="example">iu</code> becomes <i>uu</i>. <code class="example">+</code> means to leave the combination as-is, and <code class="example">-</code> means to reject the word. This table would permit <code class="example">ai</code> but reject <code class="example">ia</code>.</p>
+      <p>Cluster-fields can also use <code class="example">^</code> in them to remove a sequence.</p>
+      <p>Each Cluster-field ends in a blank line.</p>
+      <p>These are executed at the same time like concurrent changes.</p>
 
     </section>
 

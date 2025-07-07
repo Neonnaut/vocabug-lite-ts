@@ -153,19 +153,18 @@ aR eR iR oR uR -> aa ee ii oo uu ; Get long vowels
 ; Word-internal coda: n r l s m
 ; Word-final coda: n r l s d z
 
-; rare: ywi, yoi, yaw, od#, yja, yje, yjo, yju
-
 optionals-weight: 30 %
 
-C = [t:9,tr] s ^ [k:9,kr,kl] [d:9,dr] n [p:9,pr,pl] l m r [b:9,br,bl] q g h [č:12 f z]
-V = a i o u e
-F = n r l s m d
-X = n r l s d
+C = [t:9,tr] s ^ [k:9,q:2,kr,kl] [d:9,dr] n [p:9,pr,pl] l m r [b:9,br,bl] g h č:12 [f z]
+V = a i e o u
+W = e a o i u
+F = n r l s m
+X = n r l s
 T = '
-$S = CV(F)
-$X = CV({T:1},{^:3}F) ; 2nd last 85% 
-$Y = CV({^:80},{^:95}F) ; 2nd last 85% 
-$Z = CV({T:3},{T:9}X) ; last: 9%
+$S = C[V:9,VF]
+$X = C[V{T:1}:9,V{^:3}F] ; 2nd last 85% 
+$Y = C[V{^:80}:9,V{^:95}F] ; 2nd last 85% 
+$Z = C[W{T:3}:9,V{T:9}X] ; last: 9%
 
 words: $Y$Z $X$Y$Z $S$X$Y$Z
 
@@ -218,6 +217,7 @@ graphemes: ẹ́ ọ́ ẹ̀ ọ̀ kp gb
 BEGIN transform:
 a' e' ẹ' i' o' ọ' u' -> á é ẹ́ í ó ọ́ ú
 a\` e\` ẹ\` i\` o\` ọ\` u\` -> à è ẹ̀ ì ò ọ̀ ù
+
 END`;
     }
 

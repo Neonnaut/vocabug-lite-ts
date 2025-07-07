@@ -12,6 +12,7 @@
   <link href="style.css" rel="stylesheet" type="text/css" media="all">
   
   <script src="src/theme-picker.ts"></script>
+  <script src="src/flex-box.ts"></script>
   <script src="src/main.ts" type="module"></script>
 
   <!-- Fonts -->
@@ -36,10 +37,10 @@
   <div id="content">
     <section id="top">
       <div>
-        <img src="img/vocabug_logo.png" alt="Logo of letter V with bug antennae" width="100" height="100" style="float: left;">
+        <img src="img/vocabug_logox.svg" alt="Logo of letter V with bug antennae" width="100" height="100" style="float: left;">
         <h1 style="margin: 15px 0 10px 0; padding-top: 10px;">Vocabug-lite</h1>
         <div style="padding-left: 5px;">
-          <b>Version 0.0.2</b><br>
+          <b>Version 0.0.4</b><br>
           <a href="./vocabug-lite_docs.html">Read the documentation here</a>
         </div>
       </div>
@@ -233,7 +234,7 @@
           <br><br>
 
           <label for="word-shapes">Word-shapes:</label><br>
-          <textarea spellcheck="false" id="word-shapes" class="monospace">(V)$S, $S, (V)$S$S, (V)$S$S$S, (V)$S$S$S$S, V</textarea>
+          <textarea spellcheck="false" id="word-shapes" class="flex-box monospace">(V)$S, $S, (V)$S$S, (V)$S$S$S, (V)$S$S$S$S, V</textarea>
           <br><br>
 
           <label for="alphabet">Alphabet:</label><br>
@@ -267,16 +268,14 @@
 
         <button id="voc-add-transform" type="button" class="wide-btn">Add transform</button>
 
-        <h3>cluster-field</h3>
-        <div id="cluster-container">
-          <div class="flex flex-col gap-2">
-            <div class="flex items-center gap-2">
-              <textarea></textarea>
-            </div>
+        <br><br><label for="Cluster-fields">Cluster-fields:</label><br>
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <textarea id="cluster-fields" rows="2" class="flex-box"></textarea>
           </div>
         </div>
+        <br>
 
-        <br><br>
         <label for="graphemes">Graphemes:</label><br>
         <div class="flex flex-col gap-2">
           <input id="graphemes" type="text" autocomplete="off" spellcheck="false" class="monospace" aria-label="Pattern" value="ee, oo, aa, ii, uu, ch">
