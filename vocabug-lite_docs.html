@@ -38,7 +38,7 @@
         <img src="img/vocabug_logo.png" alt="Logo of letter V with bug antennae" width="100" height="100" style="float: left;">
 
         <h1 style="margin-bottom: 10px;">Vocabug-lite<br>documentation</h1>
-        <b>Version 0.0.4</b>
+        <b>Version 0.0.5</b>
       </div>
       <br>
 
@@ -113,7 +113,7 @@
       </ol>
 
       <h2 id="vocAbout"><a class="head-num">1</a>About Vocabug</h2>
-      <p>This is the complete documentation for <a href="./vocabug-lite.html">Vocabug-lite, version 0.0.4</a></p>
+      <p>This is the complete documentation for <a href="./vocabug-lite.html">Vocabug-lite, version 0.0.5</a></p>
 
       <p>This is a word generator designed to be a successor to the Williams' <a href="https://github.com/bbrk24/lexifer-ts">Lexifer</a> and to the legendary <a href="https://github.com/nai888/awkwords">Awkwords</a>. You can find it's repository <a href="https://github.com/Neonnaut/vocabug-lite-ts">here</a>. As the name implies, Vocabug-lite, is the 'lite' version of the full Vocabug, which is yet to be released.</p>
 
@@ -177,7 +177,7 @@
             <td>Space, separates choices. An alternative to commas</td>
           </tr>
           <tr>
-            <td><code class="example">:</code></td>
+            <td><code class="example">*</code></td>
             <td>Gives weight to a grapheme, <a href="#vocSegments">segment</a>, set, or word-shape</td>
           </tr>
           <tr>
@@ -187,6 +187,10 @@
           <tr>
             <td><code class="example">(</code>, <code class="example">)</code></td>
             <td><a href="#vocOptional">Optional-set</a></td>
+          </tr>
+          <tr>
+            <td><code class="example">{</code>, <code class="example">}</code></td>
+            <td><a href="#vocSupraSet">Supa-set item</a></td>
           </tr>
           <tr>
             <td><code class="example">^</code></td>
@@ -273,7 +277,7 @@ words: t[V, x]</pre>
       <p>This will produce either <code class="example">ta</code>, <code class="example">tu</code> or <code class="example">tx</code>.</p>
       <p>Pick-one-sets can be nested inside each other.</p>
       <p>Anything inside the pick-one can be assigned a <a href="#vocWeights">weight</a>, and a pick-one itself can be assigned a weight as well if it is nested inside another set:</p>
-      <pre class="example">words: [a:1, b:2, [c, d]:2]</pre>
+      <pre class="example">words: [a*1, b*2, [c, d]*2]</pre>
 
       <h3 id="vocOptional"><a class="head-num">5.4</a>Optional-set</h3>
       <p>Using round brackets, <code class="example">(</code> and <code class="example">)</code>, optional-set works the same way as <a href="#vocPickOne">pick-one-set</a>, the only difference is that what's inside them can either appear in the word or not. The probability of each of these variants is 10% by default.</p>
@@ -292,7 +296,7 @@ words: t[V, x]</pre>
       
       <h4 id="vocSupraSetWeight"><a class="head-num">5.5.1</a>Supra-set weight</h4> 
       <p>You can set the weights of supra-set items like so:</p>
-      <pre class="example">M = m<br>N = n<br>$X = ka{M:8}<br>$Y = te{N:2}<br>words: $X$Y</pre>
+      <pre class="example">M = m<br>N = n<br>$X = ka{M*8}<br>$Y = te{N*2}<br>words: $X$Y</pre>
       <p>The above example has an 80% chance of generating <code class="example">kamte</code> and a 20% chance of generating <code class="example">katen</code>.</p>
 
       <h2 id="vocDistributions"><a class="head-num">6</a>Default distributions</h2>
@@ -309,10 +313,10 @@ words: t[V, x]</pre>
       <img src="img/distribution.png" alt="Distribution graph" style="width: 100%;">
 
       <h2 id="vocWeights"><a class="head-num">7</a>Assigning weights</h2>
-      <p>If you want to set your own frequency for graphemes in a <a href="#vocCategories">category</a> or category-set, items in a <a href="#vocPickOne">pick-one-set</a>, or <a href="#vocOptional">optional-set</a>, or <a href="#vocWords">word-shapes</a> in the <code class="example">words:</code> directive, you can use a colon <code class="example">:</code> to specify the weight for each item, like so:</p>
-      <pre class="example">V = a:5, e:4, i:3, o:2, u:1
-$S = [V:8 x:2]
-words: $S:2 y</pre>
+      <p>If you want to set your own frequency for graphemes in a <a href="#vocCategories">category</a> or category-set, items in a <a href="#vocPickOne">pick-one-set</a>, or <a href="#vocOptional">optional-set</a>, or <a href="#vocWords">word-shapes</a> in the <code class="example">words:</code> directive, you can use an asterisk <code class="example">*</code> to specify the weight for each item, like so:</p>
+      <pre class="example">V = a*5, e*4, i*3, o*2, u*1
+$S = [V*8 x*2]
+words: $S*2 y</pre>
       <p><code class="example">V</code> has approximately the following probabilities: a: 33%, e: 27%, i: 20%, o: 13%, u: 7%. The <a href="#vocPickOne">pick-one-set</a> in the <code class="example">$S</code> segment has an 80% chance of producing a V category over the x grapheme. And the first word-shape in the <code class="example">words:</code> directive has twice the chance of being chosen over the next word-shape.</p>
       <p>As you might have noticed in the example above, in a sequence that has at least one weighted option, it overwrites any default distributions. Also important to note is that any other option that you had not given a weight (inside that set, or on the surface level), is given a weight of 1.</p>
 

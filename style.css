@@ -500,6 +500,7 @@ textarea, .fake-textbox, select {
   text-wrap: wrap;
   font-size: 16px;
   padding: 5px;
+  margin: 3px 0;
 }
 input[type='color']:focus,
 input[type='number']:focus, input[type='date']:focus, input[type='month']:focus, input[type='week']:focus,

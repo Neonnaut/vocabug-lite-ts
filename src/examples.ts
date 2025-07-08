@@ -59,7 +59,7 @@ Y = lŋ rŋ ɻŋ nt ɻʈ ṅṫ lṫ ṅʔ ṫʔ lṅ
 Z = ɻŋk ɻmp ɻɳʈ ɻɲc lŋk lmp lɲc lṅṫ ɻŋk ɻmp ɻɳʈ ɻɲc rŋk rmp rɲc
 F = n l r ɻ 
 ; VOWELS: <a aa i ii u uu ee oo>; and diphthong <ai>
-V = a, i, u, [oR, eR, aR, iR, uR, ai]
+V = a, i, u, [oo, ee, aa, ii, uu, ai]
 W = a, i, u
 
 ; Syllable shapes: (C)V(F), CVFNCV. (C is optional ONLY word initially).
@@ -72,13 +72,18 @@ $Z = CW(F)
 
 words: $I$S$Z $I$S$S$Z $I$S$S$S$Z $J$Z $I$S$S$S$S$Z
 
-graphemes: a aR e eR i iR o oR u uR p ṫ t c k ʔ m ṅ n ɲ ŋ r ɻ j w l ʎ
+graphemes: a aa e ee i ii o oo u uu p ṫ t c k ʔ m ṅ n ɲ ŋ r ɻ j w l ʎ
 
 BEGIN transform:
 ; Long vowels become short before a consonant cluster or <ʔ>
-aR@ aRʔ eR@ eRʔ iR@ iRʔ oR@ oRʔ uR@ uRʔ -> a@ a@ e@ e@ i@ i@ o@ o@ u@ u@ 
+%  @  ʔ
+oR o@ oʔ
+eR e@ eʔ
+iR i@ iʔ
+aR a@ aʔ
 
 ; Restrict the occurance of <ai>
+
 aiʔ aic aiŋ aiɲ aij aiw aiʎ aiɻ ai@ -> aʔ ac aŋ aɲ aj aw aʎ aɻ a@
 
 ji ʎi wu jiR ʎiR wuR -> ^REJECT ^REJECT ^REJECT ^REJECT ^REJECT ^REJECT
@@ -115,23 +120,34 @@ graphemes: a b ch d e f g h i j k l m n o p r s sh t ts u w y z
 
 BEGIN transform:
 
+aaa eee iii ooo uuu -> a e i o u
+aa ee ii oo uu -> a e i o u
+
 ; "Yotsugana": <dz> and <dj> neutralise to <z> and <j>
-sy zy ty dy wy -> sh j ch j y
-si zi ti di -> shi ji chi ji
-tu du hu -> tsu zu fu
-wi we wo -> i e o
+%  i   u   e   o   ya   yu  yo
+s  shi +   +   +   sha  shu sho
+z  ji  +   +   +   ja   ju  jo 
+t  chi tsu +   +   cha  chu cho
+d  ji  zu  +   +   ja   ju  jo
+h  hi  fu  +   +   +    +   +
+w  i   +   e   o   ya   yu  yo
 
 Na Ne Ni No Nu -> n'a n'e n'i n'o n'u
 
-Qch Qsh Qts Qk Qs Qt Qh Qp Qf Qw -> Qtch Qshsh Qtts Qkk Qss Qtt Qpp Qpp Qpp Qpp
-Nb Np Nm -> mb mp mm
+; <N> assimilation, and <Q> gemination.
+% ch   sh    ts   j  k   g  s   z  t   d  n  h   b  p   m  r  l  f   w
+Q Qtch Qshsh Qtts j  Qkk g  Qss z  Qtt d  n  Qpp b  Qpp m  r  l  Qpp Qpp
+N nch  nsh   nts  nj nk  ng ns  nz nt  nd nn nh  mb mp  mm nr nl nf  nw
 
 RQ N Q -> ^ n ^ ; <R> + <Q> is illegal.
 
 ; Vowel sequences:
-aa au ao ia ii iu -> a oo ai ja i yuu
-ea ee eu ee eo -> e e yoo e yo
-oa oo ua uu ue uo -> o o a u ai ai
+%  a   i   u   e  o
+a  a   ai  oo  ae ai
+i  ya  i   yuu ie io
+u  a   ui  u   ai ai
+e  ee  ei  yoo e  yo
+o  oo  oi  ou  oe o
 
 aR eR iR oR uR -> aa ee ii oo uu ; Get long vowels
 
@@ -140,7 +156,9 @@ aR eR iR oR uR -> aa ee ii oo uu ; Get long vowels
 `;
 
 } else if (example == "romance") {
-  choice = `; ; # Spanish-like
+  choice = `; # Spanish-like
+
+; # Spanish-like
 
 ; Initial-cluster: pl pr tr cl cr bl br dr gl gr
 ; All-consonant: t s k q d n b m p l r g h č f z
@@ -153,26 +171,35 @@ aR eR iR oR uR -> aa ee ii oo uu ; Get long vowels
 ; Word-internal coda: n r l s m
 ; Word-final coda: n r l s d z
 
+; rare: ywi, yoi, yaw, od#, yja, yje, yjo, yju
+
 optionals-weight: 30 %
 
-C = [t:9,tr] s ^ [k:9,q:2,kr,kl] [d:9,dr] n [p:9,pr,pl] l m r [b:9,br,bl] g h č:12 [f z]
-V = a i e o u
-W = e a o i u
+C = [t:9,tr] s ^ [k:12,kr:2,kl] [d:12,dr] n [p:12,pr:2,pl] l m r [b:9,br:2,bl] q g h [č:12 f z]
+V = a i o u e
 F = n r l s m
 X = n r l s
 T = '
-$S = C[V:9,VF]
-$X = C[V{T:1}:9,V{^:3}F] ; 2nd last 85% 
-$Y = C[V{^:80}:9,V{^:95}F] ; 2nd last 85% 
-$Z = C[W{T:3}:9,V{T:9}X] ; last: 9%
+$S = CV(F)
+$X = CV({T:1},{^:3}F) ; 2nd last 85% 
+$Y = CV({^:80},{^:95}F) ; 2nd last 85% 
+$Z = CV({T:3},{T:9}X) ; last: 9%
 
-words: $Y$Z $X$Y$Z $S$X$Y$Z
+BEGIN words:
+  $Y$Z $X$Y$Z $S$X$Y$Z
+END
+
+  
 
 BEGIN transform:
 
+ud# -> od
+
 a' e' i' o' u' -> á é í ó ú
+áa aá ée eé íi ií óo oó úu uú -> á á é é í í ó ó ú ú
 
 ; Enlace y Hiato
+; [a,e,i,o,u]+ -> [a,e,i,o,u]
 %   a  e  i  o  u
 a   a  aj aj o  aw
 e   ea e  ej eo ew
@@ -180,21 +207,32 @@ i   ja je i  jo ju
 o   oa e  oj o  u
 u   wa we wi wo u
 
-aa ae ai ao au ea ee ei eo eu
-ia ie ii io iu oa oe oi oo ou
-ua ue ui uo uu
+%  m  n  j  l  g  y  s 
+m  m  ň  +  +  +  +  +
+n  ň  ň  ň  +  +  ň  +
+j  +  ň  j  ʎ  ʎ  ʎ  +
+l  +  ʎ  ʎ  ʎ  +  ʎ  +
+g  +  +  ʎ  +  +  +  +
+y  +  +  y  +  +  y  +
+s  +  +  +  +  +  +  s
+r  +  +  +  +  +  y  +  
 
 qwa qwo qwu qa qo qu -> cwa cwo cwu ca co cu
-mk mq mg mč md mf mh -> nk nq ng nč nd nf h
-ml mm mr mt mz -> nl ň r nt nz
-nb nh nm nn -> mb h ň ň 
-ll ln -> ʎ ʎ
-ss -> s
-jg jl jn -> ň ʎ ň
+
+%  b  k  q  g  č  d  f  h  l  m  n  p  r  s  t  y  z  
+m  +  nk nq ng nč nd nf h  nl m  +  +  r  +  nt y  nz 
+n  mb +  +  +  +  +  +  h  +  ň  ň  +  +  +  +  ň  +  
+r  +  +  +  +  +  +  +  +  +  +  +  +  rr +  +  y  +  
+l  +  +  +  +  +  +  +  +  ʎ  +  ʎ  +  +  +  +  y  +
+s  +  +  +  +  +  +  +  +  +  +  +  +  +  s  +  +  +  
+j  +  +  +  ň  +  +  +  +  ʎ  +  ň  +  +  +  +  ʎ  +  
+w  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  y  +
+
 nj lj gj qw -> ň ʎ ň q
 
 ; Taco-taco, burrito-burrito
-k q č h ň ʎ j w -> c qu ch j ñ ll i u
+k q č h ň ʎ j w > c qu ch j ñ ll i u
+
 `;
 
 } else if (example == "tonal") {
@@ -217,8 +255,265 @@ graphemes: ẹ́ ọ́ ẹ̀ ọ̀ kp gb
 BEGIN transform:
 a' e' ẹ' i' o' ọ' u' -> á é ẹ́ í ó ọ́ ú
 a\` e\` ẹ\` i\` o\` ọ\` u\` -> à è ẹ̀ ì ò ọ̀ ù
-
 END`;
+
+} else if (example == "btx") {
+  choice = `; A language based on Tuvan and Blackfoot, hence 'BTX'.
+; Tu-foot shows complex consonant clusters,
+; two types of vowel harmony, pitch accent.
+
+    p, pː, tː, k, kː, ʔ,
+    ts, tts, ks, kks,
+    s, sː, x,
+    m, mː, n, nː,
+    w, j,
+
+    a, ɯ, o, u,
+    e, i, ø, y
+`;
+
+} else if (example == "tests") {
+  choice = `; This is a comment.
+abcdefg ; And this is a comment following junk.
+
+() [] {} ; <- These should self close.
+"" ''   ; <- These should not self close.
+; This should say it is the 6th line.
+  ; Tab should indent by 2 spaces
+  ; Enter after tab should repeat the indent on the next line
+
+category-distribution: gusein-zade zipfian flat
+wordshape-distribution: zipfian gusein-zade flat
+optionals-weight: 10 ; How often optionals are selected
+alphabet: a b c d e f ; A custom sort order if Sort words is turned on
+graphemes: ch sch ; For transforms
+alphabet-and-graphemes: a b ch ; Does both
+invisible: . |
+
+; CATEGORIES
+  C = p, t, k
+
+  ; Category set and category-in-category
+  V = a, i, o, e, u, [aa, ee, ii, oo, uu], C
+
+  ; escape characters
+  C = \\^, \\[, \\]
+
+  ; Weights
+  C = p:7, t:6, k:4
+
+  ; syntax characters
+  C = ^
+
+; SEGMENTS
+  $S = CVCVCV
+
+  ; Segments-in-segments
+  $H = $S
+
+  ; Escape characters
+  $C = \\^, \\[, \\]
+
+  ; Weights
+  $C = p:7, t:6, k:4
+
+  ; Syntax characters
+  $C = ^
+
+  ; Pick-ones
+  $C = p[t, k, s]
+  ; ==> pt, pk, ps
+
+  ; Optionals
+  $C = p(t, k, s)
+  ; ==> p, pt, pk, ps
+
+  ; Inter-pick-ones
+  $C = CV{D:4}CV{E:5}
+  ; ==> pe'ta, peta'
+
+; BUILDING WORDS
+  words: $S:5, $SsC:5 $S, $S$S, [foo, bar]
+
+; TRANSFORM:
+BEGIN transform:
+
+  ; Simple replacement:
+    o -> x ; bodido ==> bxdidx
+
+  ; Concurrent set:
+  ; Switch [o] and [e] around
+    o a -> a o ; boda ==> bado
+
+  ; CLUSTERFIELD
+    % k k R F
+    a á + ^ â 
+    ā - ā̀ ā̌ ā̂
+
+; ~~~~~~~~~~~~
+  
+; REPLACEMENT
+  ; Simple replacement:
+    o -> x ; bodido ==> bxdidx
+
+  ; Concurrent set:
+  ; Switch [o] and [e] around
+    o a -> a o ; boda ==> bado
+
+  ; Merging set:
+  ; Three phonemes becoming two phonemes
+    [ʃ,z] dz -> s, d ; zeʃadzas ==> sesadas
+
+  ; Optional set:
+  ; Merge [xw] and [x] into [h]
+    {x ħ}(w j) > {s h}(w j) ; xwaxaħa ==> hahaħa
+
+; CONDTION
+  ; Simple multiple condion:
+    a -> e / p_p , t_t ; apaptat ==> apeptet
+
+  ; Sets in a condition:
+    a -> e / k(p)_{p t k}
+
+  ; Word boundaries:
+    a -> e / #_ , p_p#
+
+  ; Syllable boundaries:
+    a -> e / $_ , p_p$
+
+; EXCEPTIONS
+    a > e ! #_, _# ! swo
+  ; apappap > apappep
+
+; CATEGORIES
+    plosive = p, t, k
+    fricative = f, θ, x
+    vowel = a, e, i, o, u
+  ; Lenition of voiceless stops to fricatives
+    {plosive} > {fricative} / {vowel}_{vowel};
+  ; papatakak ==> pafaθaxak
+
+; FEATURESET
+  ; Used for engine filters and for features
+    feature-set: ipa
+    [nasal -labial] -> n
+  ; amaŋaɲ > amanan
+    feature-set: ansx-sampa
+    [nasal]
+  ; amaNaJ -> amanan
+    feature-set: digraphian
+    [nasal]
+  ; amaNaJ -> amanan
+
+; CARDS
+  ; Wildcard:
+    a > e / _*
+  ; apappap > apappep
+
+  ; Ditto-Card:
+    a > e / r"_
+  ; rarra > rarre
+
+  ; Multituder
+    a > e / r<[3]_
+  ; rrrarra > rrrerra
+
+  ; Greedy wildcard:
+    a > e / r*+_
+  ; apappap > apappep
+
+  ; Positioning
+    a@[2] > o / b@[2]_
+  ; baba > babo
+
+; GEMINATION:
+  ; Gemination:
+  p > p" / a_a
+
+  ; Degemination:
+  " > ^ / @_
+
+; DELETION
+  ; Deletion from interior:
+    a > ^ / t_t ; atata ==> atta
+
+  ; Deletion from end of word:
+    a > ^ / _# ; atta ==> att
+
+  ; Deletion from beginning of word:
+    a > ^ / #_ ; atta ==> tta
+
+; INSERTION
+  ; Insertion at interior:
+    ^ > a / t_t ; atta ==> atata
+
+  ; Insertion at end of word:
+    ^ > a / _# ; att ==> atta
+
+  ; Insertion at beginning of word:
+    ^ > a / #_ ; att ==> aatt
+
+; METATHESIS
+  x&y&z > &&321 ; xaayooz ==> aaoozyx
+
+; CONDITIONAL BLOCKS
+  if:
+  then:
+  else:
+
+  chance: 50%
+
+; CLUSTERFIELD
+  % k k R F
+  a á à ǎ â 
+  ā ā́ ā̀ ā̌ ā̂
+
+; ENGINES
+  engine: normalise coronal-metathesis std-assimilations
+
+; REJECT
+  reject: aeiou
+
+; MORE TESTS
+  ; Compensatory Lengthening
+
+  ; Rhotacism: [z] goes to [r] between vowels or glides
+
+  ; Haplology, repeated sequence is deleted
+
+  ; Diphthongization
+
+  ; Monophthongization
+
+  ; Vowel Rasing
+
+  ; Vowel Lowering
+
+  ; Nasalization
+
+  ; Affrication
+
+  ; Deaffrication
+
+  ; Lengthening
+
+  ; Shortening
+
+  ; word or syllable-final sounds devoice
+
+  ; voicing between vowels
+
+  ; nasals agree in place with following sound
+
+  ; Palatalization:
+    k:t s > tʃ ʃ / _i
+
+  ; Tonogenesis:
+
+  ; Sandhi: impossible
+
+END
+`;
     }
 
     if (choice == '' || choice == null || choice == undefined) {

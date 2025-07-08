@@ -1,9 +1,9 @@
 window.addEventListener("load", () => {
-  const flexBoxes = document.querySelectorAll<HTMLTextAreaElement>(".flex-box");
+  const flexies = document.querySelectorAll<HTMLTextAreaElement>(".flex-box");
 
-  flexBoxes.forEach((textarea) => {
+  flexies.forEach((textarea) => {
     const resize = (): void => {
-      if (textarea.value.trim() === "") {
+      if (textarea.value === "") {
         textarea.style.height = "calc(1.2em * 2)";
       } else {
         textarea.style.height = "auto";
