@@ -1,6 +1,6 @@
 import MyWorker from './worker?worker';
 
-import { get_example } from './examples.ts';
+import { examples } from './examples.ts';
 
 const w = new MyWorker();
 
@@ -17,6 +17,7 @@ window.addEventListener("load", () => {
     // Generate button
     document.getElementById("generate-words")?.addEventListener("click", function () {
         const generateButton = this as HTMLButtonElement;
+        const outputMessage = document.getElementById('voc-output-message') as HTMLDivElement;
         generateButton.disabled = true;
 
         let myFile = makeFile();
@@ -32,9 +33,15 @@ window.addEventListener("load", () => {
                 force_words: false,
                 word_divider: (document.getElementById('word-divider') as HTMLInputElement)?.value || ""
             });
+            w.onerror = function (e: ErrorEvent) {
+                generateButton.disabled = false;
+                outputMessage.innerHTML = `<p class='error-message'>${e.message}</p>`;
+            };
+
         } catch (e) {
             generateButton.disabled = false;
-            alert(e);
+            const error_message = e instanceof Error ? e.message : String(e);
+            outputMessage.innerHTML = `<p class='error-message'>${error_message}</p>`;
         }
     });
 
@@ -55,19 +62,27 @@ window.addEventListener("load", () => {
 
         let output_message_html = '';
 
-        if (e.data.warning_message.length != 0) {
-            for (const message of e.data.warning_message) {
+        if (e.data.warning_messages.length != 0) {
+            for (const message of e.data.warning_messages) {
                 output_message_html += `<p class='warning-message'>${message}</p>`;
+                console.warn(message);
             }
         }
-        if (e.data.error_message.length != 0) {
-            for (const message of e.data.error_message) {
+        if (e.data.error_messages.length != 0) {
+            for (const message of e.data.error_messages) {
                 output_message_html += `<p class='error-message'>${message}</p>`;
+                console.error(message);
             }
         }
-        if (e.data.info_message.length != 0) {
-            for (const message of e.data.info_message) {
+        if (e.data.info_messages.length != 0) {
+            for (const message of e.data.info_messages) {
                 output_message_html += `<p class='info-message'>${message}</p>`;
+                console.info(message);
+            }
+        }
+        if (e.data.diagnostic_messages.length != 0) {
+            for (const message of e.data.diagnostic_messages) {
+                console.debug(message);
             }
         }
         outputMessage.innerHTML = output_message_html;
@@ -359,7 +374,7 @@ window.addEventListener("load", () => {
 
         // Create clusterfield textbox
         const clusterElement = document.createElement("textarea") as HTMLTextAreaElement;
-        clusterElement.className = "flex-box";
+        clusterElement.className = "flex-box monospace";
         clusterElement.name = "cluster-field";
         clusterElement.value = '% ';
         clusterElement.spellcheck = false;
@@ -384,7 +399,7 @@ window.addEventListener("load", () => {
     document.querySelectorAll(".voc-example").forEach((button) => {
         button.addEventListener("click", () => {
             const choice = (button as HTMLElement).getAttribute("value") || '?';
-            const fileContent = get_example(choice);
+            const fileContent = examples[choice];
             const confirmed = window.confirm("Replace editor text with example?");
             
             if (confirmed) {
@@ -563,9 +578,11 @@ const fileToInterface = (file: string): void => {
 
                 // Create clusterfield textbox
                 const clusterElement = document.createElement("textarea") as HTMLTextAreaElement;
-                clusterElement.className = "flex-box";
+                clusterElement.className = "flex-box monospace";
                 clusterElement.name = "cluster-field";
                 clusterElement.value = clusterString;
+                clusterElement.spellcheck = false;
+                clusterElement.autocomplete = 'off';
                 clusterElement.addEventListener("input", () => flexiesResize());
 
                 // Create delete button
@@ -892,7 +909,7 @@ function clearFields(): void {
 }
 
 function clearResults(): void {
-    (document.getElementById('voc-output-message') as HTMLInputElement).value = "";
+    (document.getElementById('voc-output-message') as HTMLInputElement).innerHTML = "";
     (document.getElementById('voc-output-words-field') as HTMLInputElement).value = "";
 }
 
@@ -900,9 +917,7 @@ function setFilename(filename: string): void {
     (document.getElementById('file-name') as HTMLInputElement).value = filename;
 }
 
-
 const is_a_percentage = (str: string): boolean => {
     const num = Number(str);
     return !isNaN(num) && num >= 1 && num <= 100;
 };
-

@@ -1,102 +1,106 @@
-import Resolver from './resolver.ts';
-import Word_Builder from './word_builder.ts';
-import Transformer from './transformer.ts';
-import Text_Builder from './text_builder.ts';
+import Resolver from './resolver';
+import Word_Builder from './word_builder';
+import Transformer from './transformer';
+import Text_Builder from './text_builder';
 import Logger from './logger';
 import Escape_Mapper from './escape_mapper'; 
-import SupraBuilder from './supra_builder';
+import Supra_Builder from './supra_builder';
+import Transform_Resolver from './transform_resolver';
+import Nesca_Grammar_Stream from './nesca_grammar_stream';
+import type { Generation_Mode } from './types'
 
-function gen_words(
-    file: string,
-    num_of_words: string,
-    mode: string = 'word-list',
-    sort_words: boolean = true,
-    capitalise_words: boolean = false,
-    remove_duplicates: boolean = true,
-    force_word_limit: boolean = false,
-    word_divider: string = " "
-): { text:string, errors:string[], warnings:string[], infos:string[] } {
-    const build_start = Date.now();
+type generate_options = {
+  file: string;
+  num_of_words?: number | string;
+  mode?: Generation_Mode;
+  remove_duplicates?: boolean;
+  force_word_limit?: boolean;
+  sort_words?: boolean;
+  capitalise_words?: boolean;
+  word_divider?: string;
+};
+
+function generate({
+    file,
+    num_of_words = 100,
+    mode = 'word-list',
+    remove_duplicates = true,
+    force_word_limit = false,
+    sort_words = true,
+    capitalise_words = false,
+    word_divider = ' '
+}: generate_options): {
+    text: string;
+    errors: string[];
+    warnings: string[];
+    infos: string[];
+    diagnostics: string[];
+} {
     const logger = new Logger();
-    let text = '';
+    let text:string = ''
 
     try {
-        const escape_mapper = new Escape_Mapper(); // Initialize Escape_Mapper to ensure it's ready for use
+        const build_start = Date.now();
 
-        const resolver = new Resolver(
-            logger,
-            escape_mapper,
-            num_of_words,
-            mode,
-            sort_words,
-            capitalise_words,
-            remove_duplicates,
-            force_word_limit,
-            word_divider
+        const escape_mapper = new Escape_Mapper();
+        const supra_builder = new Supra_Builder(logger);
+
+        const r = new Resolver(
+            logger, escape_mapper, supra_builder,
+            num_of_words, mode, sort_words, capitalise_words,
+            remove_duplicates, force_word_limit, word_divider
         );
 
-        const supra_builder = new SupraBuilder(logger);
+        r.parse_file(file);
+        r.expand_categories();
+        r.expand_segments();
+        r.expand_wordshape_segments();
+        r.set_wordshapes();
 
-
-
-        resolver.parse_file(file);
-        resolver.expand_categories();
-        resolver.expand_segments();
-        resolver.expand_wordshape_segments();
-        resolver.set_wordshapes(supra_builder);
-        resolver.create_record();
-
-        const wordBuilder = new Word_Builder(
-            logger,
-            escape_mapper,
-            supra_builder,
-            resolver.categories,
-            resolver.wordshapes,
-            resolver.wordshape_distribution,
-            resolver.category_distribution,
-            resolver.optionals_weight,
-            resolver.debug
+        const s = new Nesca_Grammar_Stream(
+            logger, r.graphemes, escape_mapper
         );
 
-        const transformer = new Transformer(
-            logger,
-            resolver.graphemes,
-            resolver.transforms
+        const z = new Transform_Resolver(
+            logger, s, r.categories, r.transform_pending
+        )
+
+        r.set_transforms(z.resolve_transforms());
+
+        if(r.debug) { r.create_record(); }
+
+        const word_builder = new Word_Builder(
+            escape_mapper, r.supra_builder, r.categories, r.wordshapes,
+            r.category_distribution, r.optionals_weight, r.debug
         );
 
-        const textBuilder = new Text_Builder(
-            logger,
-            build_start,
-            escape_mapper,
-            resolver.num_of_words,
-            resolver.debug,
-            resolver.paragrapha,
-            resolver.remove_duplicates,
-            resolver.force_word_limit,
-            resolver.sort_words,
-            resolver.capitalise_words,
-            resolver.word_divider,
-            resolver.alphabet,
-            resolver.invisible
+        const transformer = new Transformer( logger,
+            r.graphemes, r.transforms, r.debug
+        );
+
+        const text_builder = new Text_Builder(
+            logger, build_start, r.num_of_words, r.paragrapha,
+            r.remove_duplicates, r.force_word_limit, r.sort_words,
+            r.capitalise_words, r.word_divider, r.alphabet, r.invisible
         );
 
         // Yo! this is where we generate da words !!
         // Wow. Such words
-        while (!textBuilder.terminated) {
-            let word = wordBuilder.make_word();
+        while (!text_builder.terminated) {
+            let word = word_builder.make_word();
             word = transformer.do_transforms(word);
-            textBuilder.add_word(word);
+            text_builder.add_word(word);
         }
-
-        text = textBuilder.make_text();
+        text = text_builder.make_text();
         
     } catch (e: unknown) {
-        logger.error(typeof e === "string" ? e : e instanceof Error ? e.message : String(e));
+        if (!(e instanceof logger.Validation_Error)) {
+            logger.uncaught_error(e as Error);
+        }
     }
 
-    return { text:text, errors:logger.errors, warnings:logger.warnings, infos:logger.infos };
+    return { text:text, errors:logger.errors, warnings:logger.warnings,
+        infos:logger.infos, diagnostics:logger.diagnostics };
 }
 
-export default gen_words;
-
-// module.exports = gen_words;
+export default generate;

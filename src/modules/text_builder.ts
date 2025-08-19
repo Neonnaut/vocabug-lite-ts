@@ -2,26 +2,23 @@ import Word from './word';
 import Logger from './logger';
 import collator from './collator';
 import { capitalise } from './utilities';
-import type Escape_Mapper from './escape_mapper';
 
 class Text_Builder {
-    public logger: Logger;
+    private logger: Logger;
     private build_start: number;
-    public escape_mapper: Escape_Mapper
 
-    public num_of_words: number;
-    public debug: boolean;
-    public paragrapha: boolean;
-    public remove_duplicates: boolean;
-    public force_word_limit: boolean;
-    public sort_words: boolean;
-    public capitalise_words: boolean;
-    public word_divider: string;
-    public alphabet: string[];
-    public invisible: string[];
+    private num_of_words: number;
+    private paragrapha: boolean;
+    private remove_duplicates: boolean;
+    private force_word_limit: boolean;
+    private sort_words: boolean;
+    private capitalise_words: boolean;
+    private word_divider: string;
+    private alphabet: string[];
+    private invisible: string[];
 
     public terminated: boolean;
-    public words: string[];
+    private words: string[];
 
     private num_of_duplicates: number;
     private num_of_rejects: number;
@@ -30,10 +27,8 @@ class Text_Builder {
 
     constructor(
         logger: Logger, build_start: number,
-        escape_mapper: Escape_Mapper,
 
         num_of_words: number,
-        debug: boolean,
         paragrapha: boolean,
         remove_duplicates: boolean,
         force_word_limit: boolean,
@@ -45,10 +40,8 @@ class Text_Builder {
     ) {
         this.logger = logger;
         this.build_start = build_start;
-        this.escape_mapper = escape_mapper;
 
         this.num_of_words = num_of_words;
-        this.debug = debug;
         this.paragrapha = paragrapha;
         this.remove_duplicates = remove_duplicates;
         this.force_word_limit = force_word_limit;
@@ -95,19 +88,19 @@ class Text_Builder {
         // Work out if we need to terminate -- stop more words being made.
         if (this.words.length >= this.num_of_words) {
             this.terminated = true; // Generated enough words !!
-        } else if ((this.force_word_limit) && (Date.now() - this.build_start >= 30000) ) {
+        } else if (Date.now() - this.build_start >= 30000) {
             this.terminated = true;
             if (this.remove_duplicates) {
-                this.logger.warn('Could not generate the requested amount of words. Try adding more unique word-shapes or remove some reject transforms')
+                this.logger.warn(`Could not generate the requested amount of words. Try adding more unique word-shapes or remove some reject transforms`)
             } else {
-                this.logger.warn('Could not generate the requested amount of words. Try adding more word-shapes or remove some reject transforms')
+                this.logger.warn(`Could not generate the requested amount of words. Try adding more word-shapes or remove some reject transforms`)
             }
         } else if ((this.num_of_duds >= this.upper_gen_limit) && (!this.force_word_limit)) {
             this.terminated = true;
             if (this.remove_duplicates) {
-                this.logger.warn('Could not generate the requested amount of words. Try adding more unique word-shapes, remove some reject transforms')
+                this.logger.warn(`Could not generate the requested amount of words. Try adding more unique word-shapes or remove some reject transforms`)
             } else {
-                this.logger.warn('Could not generate the requested amount of words. Try adding more word-shapes, remove some reject transforms')
+                this.logger.warn(`Could not generate the requested amount of words. Try adding more word-shapes or remove some reject transforms`)
             }
         }
     }
@@ -116,39 +109,39 @@ class Text_Builder {
         // Send some good info about the generation results
         let ms:any = Date.now() - this.build_start;
         const display = ms >= 1000 ? `${(ms / 1000).toFixed(ms % 1000 === 0 ? 0 : 1)} s` : `${ms} ms`;
-        let text:string = '';
+        let record:string = '';
         
         if (this.words.length == 1) {
-            text+= `1 word generated in ${display}`;
+            record+= `1 word generated in ${display}`;
         } else if (this.words.length > 1) {
-            text+= `${this.words.length} words generated in ${display}`;
+            record+= `${this.words.length} words generated in ${display}`;
         } else if (this.words.length == 0) {
-            text+= `Zero words generated in ${display}`;
+            record+= `Zero words generated in ${display}`;
         }
 
         if (this.num_of_duplicates == 1) {
-            text+= ` -- with 1 duplicate word removed`;
+            record+= ` -- with 1 duplicate word removed`;
             if (this.num_of_rejects == 1) {
-                text+= `, and 1 word rejected`;
+                record+= `, and 1 word rejected`;
             } else if (this.num_of_rejects > 1) {
-                text+= `, and ${this.num_of_rejects} words rejected`;
+                record+= `, and ${this.num_of_rejects} words rejected`;
             }
         } else if (this.num_of_duplicates > 1) {
-            text+= ` -- with ${this.num_of_duplicates} duplicate words removed`;
+            record+= ` -- with ${this.num_of_duplicates} duplicate words removed`;
             if (this.num_of_rejects == 1) {
-                text+= `, and 1 word rejected`;
+                record+= `, and 1 word rejected`;
             } else if (this.num_of_rejects > 1) {
-                text+= `, and ${this.num_of_rejects} words rejected`;
+                record+= `, and ${this.num_of_rejects} words rejected`;
             }
         } else {
             if (this.num_of_rejects == 1) {
-                text+= ` -- with 1 word rejected`;
+                record+= ` -- with 1 word rejected`;
             } else if (this.num_of_rejects > 1) {
-                text+= ` -- with ${this.num_of_rejects} words rejected`;
+                record+= ` -- with ${this.num_of_rejects} words rejected`;
             }
         }
 
-        this.logger.info(text);
+        this.logger.info(record);
     }
 
     make_text() {
@@ -163,31 +156,32 @@ class Text_Builder {
         if (this.paragrapha){
             return this.paragraphify(this.words);
         }
+
         this.create_record();
         return this.words.join(this.word_divider);
     }
 
     paragraphify(words: string[]): string {
         if (words.length === 0) return '';
-        if (words.length === 1) return capitalise(words[0]) + this.randomEndPunctuation();
+        if (words.length === 1) return capitalise(words[0]) + this.random_end_punctuation();
 
         const result: string[] = [];
 
-        let shouldCapitalise = true;
+        let should_capitalise = true;
         for (let i = 0; i < words.length; i++) {
             let word = words[i];
 
-            if (shouldCapitalise) {
+            if (should_capitalise) {
                 word = capitalise(word);
-                shouldCapitalise = false;
+                should_capitalise = false;
             }
 
             if (i === words.length - 1) {
                 result.push(word); // Hold final punctuation until the end
             } else if (i % 7 === 0 && i !== 0) {
-                const punctuation = this.randomEndPunctuation();
+                const punctuation = this.random_end_punctuation();
                 result.push(word + punctuation);
-                shouldCapitalise = true; // Capitalize next word
+                should_capitalise = true; // Capitalize next word
             } else if (i % 6 === 0 && i !== 0) {
                 result.push(word + ','); // Sprinkle commas
             } else {
@@ -201,12 +195,12 @@ class Text_Builder {
         paragraph = paragraph.replace(/[,\s]*$/, '');
 
         // Add final punctuation (., ?, or ! with weighted odds)
-        paragraph += this.randomEndPunctuation();
+        paragraph += this.random_end_punctuation();
 
         return paragraph;
     }
 
-    randomEndPunctuation(): string {
+    random_end_punctuation(): string {
         const roll = Math.random();
         if (roll < 0.005) return '...';     // 0.4% chance of exclamation
         if (roll < 0.03) return '!';     // 2% chance of exclamation

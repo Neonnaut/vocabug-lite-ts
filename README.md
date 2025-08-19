@@ -1,6 +1,6 @@
 # Vocabug-lite
 
-Version 0.0.5
+Version 0.1.1
 
 ![Vocabug logo](./img/vocabug_logo.svg?raw=true "Vocabug-lite")
 
