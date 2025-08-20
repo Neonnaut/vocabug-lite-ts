@@ -463,7 +463,8 @@
       <p>A shorthand version to <code class="example">^REJECT</code> is <code class="example">^R</code></p>
 
       <h2 id="nescaInsertionAndDeletion"><a class="head-num">12</a>Insertion and deletion</h2>
-      <p>Insertion requires a condition to be present, and for a caret <code class="example">^</code> to be present in <code class="example">TARGET</code>, representing nothing.</p>
+      <h2 id="nescaInsertionAndDeletion"><a class="head-num">13</a>Insertion and deletion</h2>
+      <p>Insertion requires a <a href="#nescaTheCondition">condition</a> to be present, and for a caret <code class="example">^</code> to be present in <code class="example">TARGET</code>, representing nothing.</p>
       <div class="prog-pre"><span class="comment">; insert /a/ in between /b/ and /t/</span>
   <span class="operator">^</span> <span class="link">-></span> a <span class="link">/</span> b<span class="link">_</span>t
 <span class="comment">; bt ==> bat</span></div>
@@ -506,7 +507,7 @@
       <div class="prog-pre">  <span class="catkey">B</span> <span class="link">=</span> x<span class="link">,</span> y<span class="link">,</span> z<br><span class="directive">BEGIN transform</span><span class="link">:</span><br>  <span class="catkey">B</span> <span class="link">-></span> <span class="operator">^</span><br><code class="comment">; xapay ==> apa</code></div>
 
       <p>If the category is part of a target, it MUST be inside an alternator set:</p>
-      <div class="prog-pre">  <span class="catkey">B</span> <span class="link">=</span> x<span class="link">,</span> y<span class="link">,</span> z<br><span class="directive">BEGIN transform</span><span class="link">:</span><br>  <span class="regexp">[</span><span class="catkey">B</span><span class="regexp">]</span>v <span class="link">-></span> <span class="operator">^</span><br><code class="comment">; xvapay ==> apa</code></div>
+      <div class="prog-pre">  <span class="catkey">B</span> <span class="link">=</span> x<span class="link">,</span> y<span class="link">,</span> z<br><span class="directive">BEGIN transform</span><span class="link">:</span><br>  <span class="regexp">[</span><span class="catkey">B</span><span class="regexp">]</span>v <span class="link">-></span> <span class="operator">^</span><br><code class="comment">; xvapay ==> apay</code></div>
 
       <h2 id="nescaAltAndOpt"><a class="head-num">16</a>Alternator and Optionalator</h2>
       <p>These are designed to be fussy, they cannot be nested, they cannot stand on their own.</p>
@@ -523,6 +524,7 @@
       <div class="prog-pre"><span class="comment">; Merge /x/ and /xw/ into /k/</span><br>  x<span class="regexp">(</span>w<span class="regexp">)</span> <span class="link">-></span> k<br><span class="comment">; xwaxaħa ==> kakaħa</span></div>
       <p>Optional-set can also attach to an alternator-set:</p>
       <div class="prog-pre"><span class="comment">; Merge /x/, /xw/, /ħ/ and /ħw/ into /k/</span><br>  <span class="regexp">[</span>x<span class="link">,</span> ħ<span class="regexp">]</span><span class="regexp">(</span>w<span class="regexp">)</span> <span class="link">-></span> k<br><span class="comment">; xwaxaħa ==> kakaka</span></div>
+      <p>Optionalator-set cannot be used on its own, it must be connected to other content.</p>
 
       <h2 id="nescaClusterfield"><a class="head-num">17</a>Cluster-field</h2>
       <p>Cluster-field is a way to target sequences of graphemes and change them. They are laid out as tables, and start with <code class="example">%</code> followed by a space. The first part of a sequence is in the first column, and the second part is in the first row. For example:</p>
@@ -550,17 +552,18 @@ n mp <span class="operator">+</span>  <span class="operator">+</span>  nn <span 
       <p>The bounded quantifier matches as many times its digit(s), enclosed in <code class="example">+{</code> and <code class="example">}</code>, to the things to the left.</p>
       <div class="prog-pre"><span class="comment">; Change /o/ into /x/ only when preceded by three /r/s</span><br>  o <span class="link">-></span> x <span class="link">/</span> r<span class="regexp">+{</span>3<span class="regexp">}</span><span class="link">_</span>
 <code class="comment">; ororrro ==> ororrrx</code></div>
+
       <p>The digits in the quantifier can also be a range:</p>
-      <div class="prog-pre"><span class="comment">; Change a sequence of 2 to 4 /o/s into /x/</span><br>  o <span class="link">-></span> x <span class="link">/</span> r<span class="regexp">+{</span>2<span class="link">,</span> 4<span class="regexp">}</span><span class="link">_</span>
-<code class="comment">; toootooooo ==> txtxo</code></div>
+      <div class="prog-pre"><span class="comment">; Change a sequence of 2 to 4 /o/s into /x/</span><br>  o<span class="regexp">+{</span>2<span class="link">,</span>4<span class="regexp">}</span> <span class="link">-></span> x
+<code class="comment">; tootooooo ==> txtxo</code></div>
 
 
       <p>At the beginning of the list, <code class="example">,</code> represents all the possible numbers lower than the number to the right, not including zero.</p>
-      <div class="prog-pre"><span class="comment">; Change a sequence of 1 to 10 /o/s into /x/</span><br>  o <span class="link">-></span> x <span class="link">/</span> r<span class="regexp">+{</span><span class="link">,</span>10<span class="regexp">}</span><span class="link">_</span>
-<code class="comment"><span class="comment">; toootoooo ==> txtx</span></code></div>
+      <div class="prog-pre"><span class="comment">; Change a sequence of 1 to 4 /o/s into /x/</span><br>  o<span class="regexp">+{</span><span class="link">,</span>4<span class="regexp">}</span> <span class="link">-></span> x
+<code class="comment">; tootooooo ==> txtx</code></div>
 
       <p>And finally at the end of the list, <code class="example">,</code> represents all possible numbers larger than the number to the the left</p>
-        <div class="prog-pre"><span class="comment">; Change a sequence of 4 to as many as possible /o/s into /x/</span><br>  o <span class="link">-></span> x <span class="link">/</span> r<span class="regexp">+{</span>4<span class="link">,</span><span class="regexp">}</span><span class="link">_</span>
+        <div class="prog-pre"><span class="comment">; Change a sequence of 4 to as many as possible /o/s into /x/</span><br>  o<span class="regexp">+{</span>4<span class="regexp"><span class="link">,</span>}</span> <span class="link">-></span> x
 <code class="comment">; toootooooo ==> toootx</code></div>
 
       <h3 id="nescaGeminateMark"><a class="head-num">18.3</a>Geminate-mark</h3>
@@ -571,14 +574,14 @@ n mp <span class="operator">+</span>  <span class="operator">+</span>  nn <span 
 
       <div class="prog-pre">  a <span class="link">-></span> a<span class="regexp">:</span><br><code class="comment">; tat => taat</code></div>
 
-      <h3 id="nescaKleeneStar"><a class="head-num">18.4</a>Kleene-star</h3>
-      <p>Occasionally, you may want to match a grapheme whether it exists, there is one of it, or there is multiple of it consecutively, known as a "Kleene-star". There is <b>no</b> dedicated character for a Kleene star. Instead, you wrap the content followed by a quantifier, in an optionalator.</p>
-      <div class="prog-pre">  o<span class="regexp">(</span>a<span class="regexp">+)</span> <span class="link">-></span> o<br><code class="comment">; roaroaaaaa ==> raro</code></div>
+      <h3 id="nescaKleeneStar"><a class="head-num">19.4</a>Kleene-star</h3>
+      <p>Occasionally, you may want to match a grapheme whether it exists, there is one of it, or there is multiple of it consecutively, known as a "Kleene-star". There is <b>no</b> dedicated character for a Kleene star. Instead, you wrap the content followed by a quantifier, in an optionalator:</p>
+      <div class="prog-pre">  u<span class="regexp">(</span>a<span class="regexp">+)</span> <span class="link">-></span> o<br><code class="comment">; ruaruaaaaa ==> roro</code></div>
 
-      <h3 id="nescaWildcard"><a class="head-num">18.5</a>Wildcard</h3>
-      <p>Wildcard using asterisk <code class="example">*</code>, will match once to any grapheme. Wildcard does not match word boundaries. Wildcard cannot be used in <code class="example">RESULT</code>:</p>
-      <div class="prog-pre">  a <span class="link">-></span> e <span class="link">/</span> <span class="link">_</span><span class="regexp">*</span><br><code class="comment">; apappap ==> apeppep</code></div>
-      <p>Wildcard can be placed by itself inside an <a href="#vocOptional">optional-set</a> <code class="example">(*)</code>, thereby allowing it to match nothing as well.</p>
+      <h3 id="nescaWildcard"><a class="head-num">19.5</a>Wildcard</h3>
+      <p>Wildcard, using asterisk <code class="example">*</code>, will match once to any grapheme. Wildcard does not match word boundaries. Wildcard cannot be used in <code class="example">RESULT</code>:</p>
+      <div class="prog-pre"><code class="comment">; Any grapheme becomes /x/ when any grapheme follows it</code><br>  <span class="regexp">*</span> <span class="link">-></span> x <span class="link">/</span> <span class="link">_</span><span class="regexp">*</span><br><code class="comment">; aomp ==> xxxp</code></div>
+      <p>Wildcard can be placed by itself inside an <a href="#nescaOptionalatorSet">optionalator</a> <code class="example">(*)</code>, thereby allowing it to match nothing as well.</p>
 
       <h3 id="nescaAnythingsMark"><a class="head-num">18.6</a>Anythings-mark</h3>
       <p>The anythings-mark uses tilde <code class="example">~</code> or the ellipsis character <code class="example">…</code> U+2026. It will match as many (but not zero) times to any grapheme as needed. For example:</p>
@@ -590,8 +593,7 @@ n mp <span class="operator">+</span>  <span class="operator">+</span>  nn <span 
       <h3 id="nescaBlocker"><a class="head-num">18.7</a>Blocked-anythings-mark</h3>
       <p>Blocked-anythings-mark is designed to block the spreading behaviour of the anythings-mark when certain graphemes are ahead of it. You enclose a set of graphemes inside <code class="example"><span class="regexp">~{</span></code> and <code class="example">}</code> that will block spreading. For example we might want the graphemes <code class="example">k</code> or <code class="example">g</code> to prevent the rightward spread of nasal vowels to non nasal vowels:</p>
       
-      <div class="prog-pre">  a<span class="link">,</span> i<span class="link">,</span> u <span class="link">-></span> ã<span class="link">,</span> ĩ<span class="link">,</span> ũ <span class="link">/</span> <span class="regexp">[</span>ã<span class="link">,</span> ĩ<span class="link">,</span> ũ<span class="regexp">]</span><span class="regexp">~{</span>k<span class="link">,</span> g<span class="regexp">}</span><span class="link">_</span><br><span class="comment">; pabãdruliga ==> pabãdrũlĩga</span></div>      
-
+      <div class="prog-pre">  a<span class="link">,</span> i<span class="link">,</span> u <span class="link">-></span> ã<span class="link">,</span> ĩ<span class="link">,</span> ũ <span class="link">/</span> <span class="regexp">[</span>ã<span class="link">,</span> ĩ<span class="link">,</span> ũ<span class="regexp">]</span><span class="regexp">~{</span>k<span class="link">,</span> g<span class="regexp">}</span><span class="link">_</span><br><span class="comment">; pabãdruliga ==> pabãdrũlĩga</span></div>
     </section>
 
   </div>
